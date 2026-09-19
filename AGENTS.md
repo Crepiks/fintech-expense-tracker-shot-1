@@ -89,10 +89,19 @@ Update `README.md` whenever functionality changes. The README must include:
 4. Local setup instructions with commands that can be copied and actually work.
 5. Tech stack and a short description of the architecture or data flow.
 
+## Branches and Pull Requests
+
+- **Required skill:** Before starting a feature or changing branches, pushing, or working with a PR, read and follow [branch-requirements](.agents/skills/branch-requirements/SKILL.md).
+- **Required skill:** Before drafting, creating, or updating a PR title or description, read and follow [pr-requirements](.agents/skills/pr-requirements/SKILL.md) and use the [PR template](.github/PULL_REQUEST_TEMPLATE.md).
+- Start each new feature, fix, or maintenance task on a new `<type>/<short-description>` branch, such as `feat/expense-import`, `fix/empty-input`, or `docs/agent-workflows`. Use the types and naming rules in `branch-requirements`. Continue an existing task or PR on its existing branch.
+- Never commit directly to `trunk` or push to remote `trunk`. Integrate changes through a PR from the task branch to `trunk`.
+- Verify the PR's actual head repository, head branch, and base branch. Keep review fixes on its head branch; do not merge or enable auto-merge unless the user requests it.
+
 ## Commits
 
+- **Required skill:** Before composing a commit message or creating any commit in this repository, read and follow [commit-requirements](.agents/skills/commit-requirements/SKILL.md). This applies to normal, amended, merge, squash, revert, and fixup commits, including commits made through tools or UIs.
 - Commit in small, logical steps.
-- Commit messages are meaningful and follow a consistent format, e.g. `feat: add file upload`, `fix: handle empty input`, `docs: update README`, `refactor: split api module`.
+- Every commit message must follow Conventional Commits 1.0.0 and the project conventions in that skill. Check the actual staged changes and final message before committing; generated messages and deadline pressure do not waive this requirement.
 - Do not make one big commit at the end.
 
 ## Before Finishing a Task
