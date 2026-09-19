@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { MAX_EXPENSES } from './config';
 import { computeTotals, expensesForMonth, monthKey, todayLocal } from './domain/calc';
+import type { Category } from './domain/categories';
 import type { Expense, ExpenseValue } from './domain/types';
 import { useExpenses } from './state/useExpenses';
 import { ExpenseForm } from './components/ExpenseForm';
@@ -13,10 +14,16 @@ import { JudgeMode } from './components/JudgeMode';
 export default function App() {
   const { expenses, add, remove, restore, storageNotice } = useExpenses();
   const [selectedMonth, setSelectedMonth] = useState(() => monthKey(todayLocal()));
+  const [categoryFilter, setCategoryFilter] = useState<Category | null>(null);
   const [lastDeleted, setLastDeleted] = useState<Expense | null>(null);
   const clearDeleted = useCallback(() => setLastDeleted(null), []);
   const monthList = useMemo(() => expensesForMonth(expenses, selectedMonth), [expenses, selectedMonth]);
   const totals = useMemo(() => computeTotals(monthList), [monthList]);
+
+  function changeMonth(month: string) {
+    setSelectedMonth(month);
+    setCategoryFilter(null);
+  }
 
   function addExpense(value: ExpenseValue) {
     add({ ...value, id: crypto.randomUUID(), createdAt: Date.now() });
@@ -27,16 +34,16 @@ export default function App() {
     <main aria-label="Pocket Ledger">
       <div className="page-heading">
         <div><h1>A clearer picture of your spending.</h1><p>Track your daily expenses, stay within your budget, and feel more in control.</p></div>
-        <MonthSwitcher month={selectedMonth} onChange={setSelectedMonth} />
+        <MonthSwitcher month={selectedMonth} onChange={changeMonth} />
       </div>
       {storageNotice && <p className="notice" role="alert">{storageNotice}</p>}
       <div className="dashboard-grid">
         <div className="ledger-column">
-          <Totals totals={totals} count={monthList.length} />
-          <ExpenseList expenses={monthList} month={selectedMonth} onDelete={expense => { remove(expense.id); setLastDeleted(expense); }} />
+          <Totals totals={totals} count={monthList.length} filter={categoryFilter} onFilter={setCategoryFilter} />
+          <ExpenseList categoryFilter={categoryFilter} expenses={monthList} month={selectedMonth} onDelete={expense => { remove(expense.id); setLastDeleted(expense); }} />
         </div>
         <aside className="entry-column" aria-label="Manage expenses">
-          <ExpenseForm selectedMonth={selectedMonth} onAdd={addExpense} onMonthChange={setSelectedMonth} canAdd={expenses.length < MAX_EXPENSES} />
+          <ExpenseForm selectedMonth={selectedMonth} onAdd={addExpense} onMonthChange={changeMonth} canAdd={expenses.length < MAX_EXPENSES} />
         </aside>
       </div>
     </main>

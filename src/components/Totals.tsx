@@ -1,10 +1,11 @@
 import { CURRENCY } from '../config';
-import { CATEGORIES, CATEGORY_COLORS } from '../domain/categories';
+import type { Category } from '../domain/categories';
+import { CategoryDonut } from './CategoryDonut';
 import type { TotalsData } from '../domain/calc';
 import { formatAmount } from '../domain/money';
 
-type Props = { totals: TotalsData; count: number };
-export function Totals({ totals, count }: Props) {
+type Props = { totals: TotalsData; count: number; filter: Category | null; onFilter: (category: Category | null) => void };
+export function Totals({ totals, count, filter, onFilter }: Props) {
   return <section className="panel totals-panel" aria-label="Monthly spending">
     <div className="summary-heading">
       <div>
@@ -17,12 +18,7 @@ export function Totals({ totals, count }: Props) {
         {totals.invariantOk ? 'Categories = Total' : 'Totals need attention'}
       </p>
     </div>
-    <ul className="category-totals" aria-label="Category totals">
-      {CATEGORIES.map(category => <li key={category}>
-        <span className="category-label"><span className="category-dot" style={{ backgroundColor: CATEGORY_COLORS[category] }} />{category}</span>
-        <span className="numeric">{CURRENCY} {formatAmount(totals.byCategory[category])}</span>
-        <span className="percentage">{totals.totalMinor === 0 ? 0 : Math.round(totals.byCategory[category] / totals.totalMinor * 100)}%</span>
-      </li>)}
-    </ul>
+    <CategoryDonut totals={totals} filter={filter} onFilter={onFilter} />
+    {filter && <p className="filter-hint">Showing {filter} transactions. <button type="button" className="text-button" onClick={() => onFilter(null)}>Clear filter</button></p>}
   </section>;
 }

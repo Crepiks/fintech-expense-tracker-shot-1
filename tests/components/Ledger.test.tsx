@@ -7,7 +7,7 @@ import { computeTotals } from '../../src/domain/calc';
 import { expense } from '../fixtures';
 
 it('shows the empty month and zero totals', () => {
-  render(<><ExpenseList expenses={[]} month="2026-09" onDelete={vi.fn()} /><Totals totals={computeTotals([])} count={0} /></>);
+  render(<><ExpenseList expenses={[]} month="2026-09" onDelete={vi.fn()} /><Totals filter={null} onFilter={vi.fn()} totals={computeTotals([])} count={0} /></>);
   expect(screen.getByText('No expenses in September 2026 yet.')).toBeInTheDocument();
   expect(screen.getByLabelText('Total spent')).toHaveTextContent('USD 0');
   expect(screen.getByText('Categories = Total')).toBeInTheDocument();
@@ -23,13 +23,13 @@ it('renders amounts and descriptions and deletes the selected record', () => {
   expect(onDelete).toHaveBeenCalledWith(expect.objectContaining({ id: 'two' }));
 });
 it('shows exact total and rounded category percentages', () => {
-  render(<Totals totals={computeTotals([expense])} count={1} />);
+  render(<Totals filter={null} onFilter={vi.fn()} totals={computeTotals([expense])} count={1} />);
   expect(screen.getByText('1 expense')).toBeInTheDocument();
   expect(screen.getByLabelText('Total spent')).toHaveTextContent('USD 1,500');
   expect(within(screen.getByLabelText('Category totals')).getByText('100%')).toBeInTheDocument();
 });
 it('renders an invariant failure visibly', () => {
-  render(<Totals totals={{ ...computeTotals([]), invariantOk: false }} count={0} />);
+  render(<Totals filter={null} onFilter={vi.fn()} totals={{ ...computeTotals([]), invariantOk: false }} count={0} />);
   expect(screen.getByText('Totals need attention')).toBeInTheDocument();
 });
 it('navigates months using named buttons', () => {

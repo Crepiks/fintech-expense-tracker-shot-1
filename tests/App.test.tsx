@@ -66,3 +66,24 @@ it('undoes the latest deletion with the original id', async () => {
   expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).expenses[0].id).toBe(originalId);
   expect(screen.queryByRole('button', { name: 'Undo' })).not.toBeInTheDocument();
 });
+it('filters only the list, toggles off, clears explicitly, and resets on month changes', async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  for (const [amount, category] of [['10', 'Food'], ['20', 'Transportation']]) {
+    await user.type(screen.getByLabelText('Amount (USD)'), amount);
+    await user.selectOptions(screen.getByLabelText('Category'), category);
+    await user.click(screen.getByRole('button', { name: 'Add an expense' }));
+  }
+  await user.click(screen.getByRole('button', { name: 'Filter Food' }));
+  expect(screen.getAllByRole('button', { name: 'Delete expense' })).toHaveLength(1);
+  expect(screen.getByLabelText('Total spent')).toHaveTextContent('USD 30');
+  await user.click(screen.getByRole('button', { name: 'Filter Food' }));
+  expect(screen.getAllByRole('button', { name: 'Delete expense' })).toHaveLength(2);
+  await user.click(screen.getByRole('button', { name: 'Filter Health' }));
+  expect(screen.getByText('No Health expenses in September 2026.')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Clear filter' }));
+  expect(screen.getAllByRole('button', { name: 'Delete expense' })).toHaveLength(2);
+  await user.click(screen.getByRole('button', { name: 'Filter Food' }));
+  await user.click(screen.getByRole('button', { name: 'Next month' }));
+  expect(screen.queryByRole('button', { name: 'Clear filter' })).not.toBeInTheDocument();
+});
