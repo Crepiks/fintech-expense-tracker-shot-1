@@ -92,6 +92,7 @@ Update `README.md` whenever functionality changes. The README must include:
 ## Branches and Pull Requests
 
 - **Required skill:** Before starting a feature or changing branches, pushing, or working with a PR, read and follow [branch-requirements](.agents/skills/branch-requirements/SKILL.md).
+- **Required skill:** Before drafting, creating, or updating a PR title or description, read and follow [pr-requirements](.agents/skills/pr-requirements/SKILL.md) and use the [PR template](.github/PULL_REQUEST_TEMPLATE.md).
 - Start each new feature, fix, or maintenance task on a new `<type>/<short-description>` branch, such as `feat/expense-import`, `fix/empty-input`, or `docs/agent-workflows`. Use the types and naming rules in `branch-requirements`. Continue an existing task or PR on its existing branch.
 - Never commit directly to `trunk` or push to remote `trunk`. Integrate changes through a PR from the task branch to `trunk`.
 - Verify the PR's actual head repository, head branch, and base branch. Keep review fixes on its head branch; do not merge or enable auto-merge unless the user requests it.
