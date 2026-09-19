@@ -33,6 +33,7 @@ it('delivers validated data and raw content from another tab', () => {
   const callback = vi.fn();
   const stop = subscribe(callback);
   const raw = JSON.stringify(data);
+  localStorage.setItem(STORAGE_KEY, raw);
   window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY, newValue: raw, storageArea: localStorage }));
   expect(callback).toHaveBeenCalledWith({ data, recovered: false }, raw);
   stop();
@@ -54,7 +55,17 @@ it('handles key removal, clearing all storage, and corrupt remote data', () => {
   expect(callback).toHaveBeenLastCalledWith({ data: empty, recovered: false }, null);
   window.dispatchEvent(new StorageEvent('storage', { key: null }));
   expect(callback).toHaveBeenCalledTimes(2);
+  localStorage.setItem(STORAGE_KEY, 'bad');
   window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY, newValue: 'bad' }));
   expect(callback).toHaveBeenLastCalledWith({ data: empty, recovered: true }, 'bad');
+  stop();
+});
+
+it('preserves current state when storage becomes unreadable during synchronization', () => {
+  const callback = vi.fn();
+  const stop = subscribe(callback);
+  vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => { throw new Error('blocked'); });
+  window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY, newValue: null }));
+  expect(callback).not.toHaveBeenCalled();
   stop();
 });

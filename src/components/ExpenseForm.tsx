@@ -7,20 +7,20 @@ import { validateExpense, type ExpenseErrors } from '../domain/validation';
 import type { ExpenseValue } from '../domain/types';
 
 type Props = {
+  today?: string;
   selectedMonth: string;
   onAdd: (value: ExpenseValue) => void;
   onMonthChange: (month: string) => void;
   canAdd: boolean;
 };
-export function ExpenseForm({ selectedMonth, onAdd, onMonthChange, canAdd }: Props) {
+export function ExpenseForm({ selectedMonth, onAdd, onMonthChange, canAdd, today = todayLocal() }: Props) {
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
-  const [date, setDate] = useState(todayLocal);
+  const [date, setDate] = useState(today);
   const [description, setDescription] = useState('');
   const [errors, setErrors] = useState<ExpenseErrors>({});
   const [savedMonth, setSavedMonth] = useState<string | null>(null);
   const amountInput = useRef<HTMLInputElement>(null);
-  const today = todayLocal();
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

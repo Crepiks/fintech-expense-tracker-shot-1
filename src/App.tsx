@@ -1,6 +1,9 @@
 import { useCallback, useMemo, useState } from 'react';
-import { MAX_EXPENSES } from './config';
-import { computeTotals, expensesForMonth, monthKey, todayLocal } from './domain/calc';
+import { CURRENCY, MAX_EXPENSES } from './config';
+import { formatAmount } from './domain/money';
+import { formatDate } from './domain/calendar';
+import { useToday } from './state/useToday';
+import { computeTotals, expensesForMonth, monthKey } from './domain/calc';
 import type { Category } from './domain/categories';
 import type { Expense, ExpenseValue } from './domain/types';
 import { useExpenses } from './state/useExpenses';
@@ -14,7 +17,9 @@ import { BudgetCard } from './components/BudgetCard';
 
 export default function App() {
   const { expenses, settings, add, remove, restore, setBudget, storageNotice } = useExpenses();
-  const [selectedMonth, setSelectedMonth] = useState(() => monthKey(todayLocal()));
+  const today = useToday();
+  const [actionNotice, setActionNotice] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState(() => monthKey(today));
   const [categoryFilter, setCategoryFilter] = useState<Category | null>(null);
   const [lastDeleted, setLastDeleted] = useState<Expense | null>(null);
   const clearDeleted = useCallback(() => setLastDeleted(null), []);
@@ -24,6 +29,16 @@ export default function App() {
   function changeMonth(month: string) {
     setSelectedMonth(month);
     setCategoryFilter(null);
+  }
+
+  function undoDelete(expense: Expense) {
+    if (expenses.length >= MAX_EXPENSES) {
+      setActionNotice(`Could not restore ${CURRENCY} ${formatAmount(expense.amountMinor)} ${expense.category} expense dated ${formatDate(expense.date)}: the 10,000-record limit was reached.`);
+      return;
+    }
+    restore(expense);
+    clearDeleted();
+    setActionNotice('');
   }
 
   function addExpense(value: ExpenseValue) {
@@ -38,18 +53,19 @@ export default function App() {
         <MonthSwitcher month={selectedMonth} onChange={changeMonth} />
       </div>
       {storageNotice && <p className="notice" role="alert">{storageNotice}</p>}
+      {actionNotice && <p className="notice" role="alert">{actionNotice}</p>}
       <div className="dashboard-grid">
         <div className="ledger-column">
           <Totals totals={totals} count={monthList.length} filter={categoryFilter} onFilter={setCategoryFilter} />
           <ExpenseList categoryFilter={categoryFilter} expenses={monthList} month={selectedMonth} onDelete={expense => { remove(expense.id); setLastDeleted(expense); }} />
         </div>
         <aside className="entry-column" aria-label="Manage expenses">
-          <ExpenseForm selectedMonth={selectedMonth} onAdd={addExpense} onMonthChange={changeMonth} canAdd={expenses.length < MAX_EXPENSES} />
-          <BudgetCard budgetMinor={settings.monthlyBudgetMinor} spentMinor={totals.totalMinor} month={selectedMonth} today={todayLocal()} onSave={setBudget} />
+          <ExpenseForm today={today} selectedMonth={selectedMonth} onAdd={addExpense} onMonthChange={changeMonth} canAdd={expenses.length < MAX_EXPENSES} />
+          <BudgetCard budgetMinor={settings.monthlyBudgetMinor} spentMinor={totals.totalMinor} month={selectedMonth} today={today} onSave={setBudget} />
         </aside>
       </div>
     </main>
-    {lastDeleted && <UndoToast expense={lastDeleted} onUndo={expense => { restore(expense); clearDeleted(); }} onExpire={clearDeleted} />}
+    {lastDeleted && <UndoToast expense={lastDeleted} onUndo={undoDelete} onExpire={clearDeleted} />}
     <footer className="site-footer"><p>All your data stays in your browser, on this device only.<br />No accounts, no banking connections. Just a little clarity.</p><JudgeMode /></footer>
   </div>;
 }

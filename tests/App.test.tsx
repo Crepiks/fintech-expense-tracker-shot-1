@@ -97,3 +97,15 @@ it('persists budget edits and derives remaining from the current month', async (
   render(<App />);
   expect(screen.getByLabelText('Budget amount')).toHaveTextContent('USD 5,000');
 });
+it('explains when Undo cannot restore into a refilled full ledger', async () => {
+  const { expense, data } = await import('./fixtures');
+  const full = { ...data, expenses: Array.from({ length: 10000 }, (_, index) => ({ ...expense, id: String(index), date: index === 0 ? '2026-09-19' : '2026-08-01' })) };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(full));
+  render(<App />);
+  fireEvent.click(screen.getByRole('button', { name: 'Delete expense' }));
+  fireEvent.change(screen.getByLabelText('Amount (USD)'), { target: { value: '10' } });
+  fireEvent.change(screen.getByLabelText('Category'), { target: { value: 'Food' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Add an expense' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+  expect(screen.getByRole('alert')).toHaveTextContent('Could not restore');
+});

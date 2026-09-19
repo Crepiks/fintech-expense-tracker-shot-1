@@ -28,8 +28,14 @@ export function save(data: StoredData): boolean {
 export function subscribe(callback: (result: ReturnType<typeof parseStoredData>, raw: string | null) => void): () => void {
   const listener = (event: StorageEvent) => {
     if (event.key !== STORAGE_KEY && event.key !== null) return;
-    if (event.storageArea !== null && event.storageArea !== window.localStorage) return;
-    callback(parseStoredData(event.newValue), event.newValue);
+    let raw: string | null;
+    try {
+      const storage = window.localStorage;
+      if (event.storageArea !== null && event.storageArea !== storage) return;
+      // Events can be queued behind a newer write. Reconcile with current storage.
+      raw = storage.getItem(STORAGE_KEY);
+    } catch { return; } // Keep the current tab's data if storage becomes unreadable.
+    callback(parseStoredData(raw), raw);
   };
   window.addEventListener('storage', listener);
   return () => window.removeEventListener('storage', listener);
