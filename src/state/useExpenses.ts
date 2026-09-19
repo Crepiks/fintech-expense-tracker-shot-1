@@ -1,0 +1,44 @@
+import { useEffect, useReducer, useRef, useState } from 'react';
+import type { Expense } from '../domain/types';
+import { load, save, subscribe } from '../storage/storage';
+import { expensesReducer } from './reducer';
+
+export function useExpenses() {
+  const initialNotice = useRef('');
+  const lastSaved = useRef<string | null>(null);
+  const [state, dispatch] = useReducer(expensesReducer, undefined, () => {
+    const loaded = load();
+    initialNotice.current = loaded.notice;
+    return loaded.data;
+  });
+  const [storageNotice, setStorageNotice] = useState(initialNotice.current);
+
+  useEffect(() => {
+    const raw = JSON.stringify(state);
+    if (raw === lastSaved.current) return;
+    if (save(state)) {
+      lastSaved.current = raw;
+      setStorageNotice(initialNotice.current);
+    } else {
+      setStorageNotice('Could not save. Storage is full or unavailable. Changes are only in this tab until saving succeeds.');
+    }
+  }, [state]);
+
+  useEffect(() => subscribe((incoming, raw) => {
+    if (raw === lastSaved.current) return;
+    // Remote updates must not echo writes back to the originating tab.
+    lastSaved.current = JSON.stringify(incoming.data);
+    if (incoming.recovered) setStorageNotice('Data from another tab was recovered. Invalid records were removed.');
+    dispatch({ type: 'replaceAll', data: incoming.data });
+  }), []);
+
+  return {
+    expenses: state.expenses,
+    settings: state.settings,
+    add: (expense: Expense) => dispatch({ type: 'add', expense }),
+    remove: (id: string) => dispatch({ type: 'remove', id }),
+    restore: (expense: Expense) => dispatch({ type: 'restore', expense }),
+    setBudget: (minor: number | null) => dispatch({ type: 'setBudget', minor }),
+    storageNotice,
+  };
+}
