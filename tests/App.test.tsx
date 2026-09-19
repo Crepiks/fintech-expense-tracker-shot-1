@@ -87,3 +87,13 @@ it('filters only the list, toggles off, clears explicitly, and resets on month c
   await user.click(screen.getByRole('button', { name: 'Next month' }));
   expect(screen.queryByRole('button', { name: 'Clear filter' })).not.toBeInTheDocument();
 });
+it('persists budget edits and derives remaining from the current month', async () => {
+  const user = userEvent.setup();
+  const { unmount } = render(<App />);
+  await user.type(screen.getByLabelText('Monthly budget (USD)'), '5000');
+  await user.click(screen.getByRole('button', { name: 'Save budget' }));
+  expect(screen.getByLabelText('Budget remaining')).toHaveTextContent('USD 5,000');
+  unmount();
+  render(<App />);
+  expect(screen.getByLabelText('Budget amount')).toHaveTextContent('USD 5,000');
+});

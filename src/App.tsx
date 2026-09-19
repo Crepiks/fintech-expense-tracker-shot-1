@@ -10,9 +10,10 @@ import { MonthSwitcher } from './components/MonthSwitcher';
 import { Totals } from './components/Totals';
 import { UndoToast } from './components/UndoToast';
 import { JudgeMode } from './components/JudgeMode';
+import { BudgetCard } from './components/BudgetCard';
 
 export default function App() {
-  const { expenses, add, remove, restore, storageNotice } = useExpenses();
+  const { expenses, settings, add, remove, restore, setBudget, storageNotice } = useExpenses();
   const [selectedMonth, setSelectedMonth] = useState(() => monthKey(todayLocal()));
   const [categoryFilter, setCategoryFilter] = useState<Category | null>(null);
   const [lastDeleted, setLastDeleted] = useState<Expense | null>(null);
@@ -44,6 +45,7 @@ export default function App() {
         </div>
         <aside className="entry-column" aria-label="Manage expenses">
           <ExpenseForm selectedMonth={selectedMonth} onAdd={addExpense} onMonthChange={changeMonth} canAdd={expenses.length < MAX_EXPENSES} />
+          <BudgetCard budgetMinor={settings.monthlyBudgetMinor} spentMinor={totals.totalMinor} month={selectedMonth} today={todayLocal()} onSave={setBudget} />
         </aside>
       </div>
     </main>

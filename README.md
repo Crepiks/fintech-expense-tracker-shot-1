@@ -18,6 +18,8 @@ npm run preview
 
 React + TypeScript with Vite, relative build paths, and Vitest with enforced 100% line and branch coverage. The domain layer parses amounts into exact integer minor units, validates real calendar dates and categories, and derives monthly totals. Validated localStorage persistence, a pure reducer, and a React hook now support adding, removing, restoring, budget settings, and cross-tab updates. The responsive UI supports adding and deleting expenses with a five-second Undo that restores the same record and id, month navigation, category totals and percentages, clear validation errors, future-date warnings, and a link to records saved in another month. An accessible SVG donut and named legend filter transactions by category; filtering never changes the month’s overall totals.
 
+A monthly budget applies the same limit to each month. The budget card derives spent, remaining, and progress from the selected month. For the current month only, it divides remaining minor units across the days left, including today, rounds down, and clamps the daily allowance to zero when over budget. Empty input clears the limit.
+
 ## Architecture
 
 Pure domain functions validate money and dates and derive totals. An isolated storage adapter validates localStorage data; a reducer and hook own state. Corrupt payloads are backed up when storage permits; invalid and duplicate records are dropped. Read/write failures become notices and the current tab remains usable. Accessible React components and plain CSS render the UI. No UI, chart, router, or state libraries are used.
