@@ -8,6 +8,7 @@ import { ExpenseList } from './components/ExpenseList';
 import { MonthSwitcher } from './components/MonthSwitcher';
 import { Totals } from './components/Totals';
 import { UndoToast } from './components/UndoToast';
+import { JudgeMode } from './components/JudgeMode';
 
 export default function App() {
   const { expenses, add, remove, restore, storageNotice } = useExpenses();
@@ -40,6 +41,6 @@ export default function App() {
       </div>
     </main>
     {lastDeleted && <UndoToast expense={lastDeleted} onUndo={expense => { restore(expense); clearDeleted(); }} onExpire={clearDeleted} />}
-    <footer className="site-footer"><p>All your data stays in your browser, on this device only.<br />No accounts, no banking connections. Just a little clarity.</p></footer>
+    <footer className="site-footer"><p>All your data stays in your browser, on this device only.<br />No accounts, no banking connections. Just a little clarity.</p><JudgeMode /></footer>
   </div>;
 }

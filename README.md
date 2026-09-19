@@ -24,6 +24,8 @@ Pure domain functions validate money and dates and derive totals. An isolated st
 
 ## Verification
 
+Use **Run validation scenario** in the footer. Its modal compares expected and actual totals for the required add/delete scenario using the real reducer entirely in memory. It never reads or modifies your stored expenses.
+
 `npm test` runs the full unit suite and enforces 100% coverage per application file. Only the React bootstrap is excluded because mounting the root belongs to the browser smoke test.
 
 ## Demo and screenshot
