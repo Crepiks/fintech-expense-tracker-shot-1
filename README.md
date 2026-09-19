@@ -16,11 +16,11 @@ npm run preview
 
 ## Current implementation
 
-React + TypeScript with Vite, relative build paths, and Vitest with enforced 100% line and branch coverage. The domain layer parses amounts into exact integer minor units, validates real calendar dates and categories, and derives monthly totals. Validated localStorage persistence, a pure reducer, and a React hook now support adding, removing, restoring, budget settings, and cross-tab updates. The UI is still an application shell.
+React + TypeScript with Vite, relative build paths, and Vitest with enforced 100% line and branch coverage. The domain layer parses amounts into exact integer minor units, validates real calendar dates and categories, and derives monthly totals. Validated localStorage persistence, a pure reducer, and a React hook now support adding, removing, restoring, budget settings, and cross-tab updates. The responsive UI supports adding and deleting expenses, month navigation, category totals and percentages, clear validation errors, future-date warnings, and a link to records saved in another month.
 
 ## Architecture
 
-Pure domain functions validate money and dates and derive totals. An isolated storage adapter validates localStorage data; a reducer and hook own state. Corrupt payloads are backed up when storage permits; invalid and duplicate records are dropped. Read/write failures become notices and the current tab remains usable. Accessible React components and plain CSS will render the UI. No UI, chart, router, or state libraries are used.
+Pure domain functions validate money and dates and derive totals. An isolated storage adapter validates localStorage data; a reducer and hook own state. Corrupt payloads are backed up when storage permits; invalid and duplicate records are dropped. Read/write failures become notices and the current tab remains usable. Accessible React components and plain CSS render the UI. No UI, chart, router, or state libraries are used.
 
 ## Verification
 
@@ -28,8 +28,8 @@ Pure domain functions validate money and dates and derive totals. An isolated st
 
 ## Demo and screenshot
 
-A deployment link and screenshot will be added when the core expense journey is available.
+The core flow has been checked in the in-app browser: add Food 1,500, Transportation 600, and Food 900 → total 3,000; delete Food 900 → 2,100; reload and switch months. A deployment link and screenshot follow after publication.
 
 ## Limitations
 
-The app shell does not yet record expenses. Currency is USD; each amount is limited to 999,999,999.99, with a 10,000-record cap to keep aggregate arithmetic exact. No AI or external APIs are used at runtime.
+Currency is USD; each amount is limited to 999,999,999.99, with a 10,000-record cap to keep aggregate arithmetic exact. No AI or external APIs are used at runtime.
