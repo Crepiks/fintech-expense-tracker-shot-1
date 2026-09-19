@@ -16,11 +16,11 @@ npm run preview
 
 ## Current implementation
 
-React + TypeScript with Vite, relative build paths, and Vitest with enforced 100% line and branch coverage. The initial app is a blank accessible application shell. Expense functionality follows in subsequent commits.
+React + TypeScript with Vite, relative build paths, and Vitest with enforced 100% line and branch coverage. The domain layer parses amounts into exact integer minor units, validates real calendar dates and categories, and derives monthly totals. The UI is still an application shell.
 
 ## Architecture
 
-Pure domain functions will validate money and dates and derive totals. A storage adapter will validate localStorage data; a reducer and hook will own state. Accessible React components and plain CSS will render the UI. No UI, chart, router, or state libraries are used.
+Pure domain functions validate money and dates and derive totals. A storage adapter will validate localStorage data; a reducer and hook will own state. Accessible React components and plain CSS will render the UI. No UI, chart, router, or state libraries are used.
 
 ## Verification
 
@@ -32,4 +32,4 @@ A deployment link and screenshot will be added when the core expense journey is 
 
 ## Limitations
 
-The app shell does not yet record expenses. No AI or external APIs are used at runtime.
+The app shell does not yet record expenses. Currency is USD; each amount is limited to 999,999,999.99, with a planned 10,000-record cap to keep aggregate arithmetic exact. No AI or external APIs are used at runtime.
