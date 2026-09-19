@@ -52,3 +52,17 @@ it('shows the storage recovery notice', () => {
   render(<App />);
   expect(screen.getByRole('alert')).toHaveTextContent('recovered');
 });
+it('undoes the latest deletion with the original id', async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  await user.type(screen.getByLabelText('Amount (USD)'), '25');
+  await user.selectOptions(screen.getByLabelText('Category'), 'Food');
+  await user.click(screen.getByRole('button', { name: 'Add an expense' }));
+  const originalId = JSON.parse(localStorage.getItem(STORAGE_KEY)!).expenses[0].id;
+  await user.click(screen.getByRole('button', { name: 'Delete expense' }));
+  expect(screen.getByLabelText('Total spent')).toHaveTextContent('USD 0');
+  await user.click(screen.getByRole('button', { name: 'Undo' }));
+  expect(screen.getByLabelText('Total spent')).toHaveTextContent('USD 25');
+  expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).expenses[0].id).toBe(originalId);
+  expect(screen.queryByRole('button', { name: 'Undo' })).not.toBeInTheDocument();
+});

@@ -16,7 +16,7 @@ npm run preview
 
 ## Current implementation
 
-React + TypeScript with Vite, relative build paths, and Vitest with enforced 100% line and branch coverage. The domain layer parses amounts into exact integer minor units, validates real calendar dates and categories, and derives monthly totals. Validated localStorage persistence, a pure reducer, and a React hook now support adding, removing, restoring, budget settings, and cross-tab updates. The responsive UI supports adding and deleting expenses, month navigation, category totals and percentages, clear validation errors, future-date warnings, and a link to records saved in another month.
+React + TypeScript with Vite, relative build paths, and Vitest with enforced 100% line and branch coverage. The domain layer parses amounts into exact integer minor units, validates real calendar dates and categories, and derives monthly totals. Validated localStorage persistence, a pure reducer, and a React hook now support adding, removing, restoring, budget settings, and cross-tab updates. The responsive UI supports adding and deleting expenses with a five-second Undo that restores the same record and id, month navigation, category totals and percentages, clear validation errors, future-date warnings, and a link to records saved in another month.
 
 ## Architecture
 
