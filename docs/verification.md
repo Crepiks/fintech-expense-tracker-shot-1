@@ -1,5 +1,18 @@
 # Verification evidence
 
+## Node.js runtime pin — 20 September 2026
+
+The runtime configuration change was verified on macOS arm64 using Node.js **24.21.0** and bundled npm **11.19.0**, selected by `nvm use` from `.nvmrc`. The official binary checksum matched during `nvm install`. Application code and the dependency lockfile were unchanged from trunk revision `4469c29`.
+
+- A fresh `npm ci --engine-strict --cache /tmp/pocket-ledger-node24-npm-cache --no-audit --no-fund --fetch-retries=0` installed all locked dependencies with no engine incompatibilities. The first sandboxed attempt encountered DNS restrictions; the network-enabled retry succeeded.
+- `npm test` passed all **174 tests in 18 files**, including the existing user-flow integration tests. Coverage remained **100%**: 283/283 lines, 188/188 branches, 333/333 statements, and 102/102 functions, with the existing per-file thresholds enforced.
+- `npm run typecheck` and `npm run build` passed.
+- GitHub Actions now reads `.nvmrc` through `node-version-file`. The hosted workflow has not been run for this local change.
+
+The browser checks below are historical evidence from 19 September, not a new browser run under Node.js 24.
+
+## Original application verification — 19 September 2026
+
 Verified on 19 September 2026 using Node.js 22.22.0 and npm 10.9.4. Application revision: `176907e`. The later documentation and CI commits do not change application behavior.
 
 ## Reproducible checks
