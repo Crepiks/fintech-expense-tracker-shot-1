@@ -149,3 +149,15 @@ it('updates budget guidance through add, delete, undo, and keeps stipend after r
   expect(screen.getByLabelText('Budget amount')).toHaveTextContent('USD 1,200');
   expect(screen.getByText('Stipend in 12 days (Oct 1, 2026)')).toBeInTheDocument();
 });
+it('can save an expense when randomUUID is unavailable', () => {
+  vi.stubGlobal('crypto', {});
+  vi.spyOn(Math, 'random').mockReturnValue(0.5);
+  try {
+    render(<App />);
+    fireEvent.change(screen.getByLabelText('Amount (USD)'), { target: { value: '15' } });
+    fireEvent.change(screen.getByLabelText('Category'), { target: { value: 'Food' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Add an expense' }));
+    expect(screen.getByLabelText('Total spent')).toHaveTextContent('USD 15');
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).expenses[0].id).toMatch(/^[a-z0-9]+$/);
+  } finally { vi.unstubAllGlobals(); }
+});

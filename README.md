@@ -4,18 +4,17 @@ A private, local-only expense tracker for people who want a clearer view of ever
 
 Small purchases are easy to lose track of, and spreadsheets take effort to maintain. Pocket Ledger makes the daily entry quick and keeps every total derived from the same monthly records, so adding or deleting an expense updates the whole picture immediately.
 
-![Pocket Ledger with three sample expenses and a monthly budget](docs/screenshots/desktop.png)
+![Pocket Ledger with sample expenses and a monthly budget](docs/screenshots/desktop.png)
 
 [Phone layout](docs/screenshots/mobile.png). Screenshots use synthetic example records; a new browser starts empty.
 
 ## Launch
 
-Requires **Node.js 22.12+** and npm. No API keys, accounts, or environment variables are needed.
+Requires **Node.js 22.12+** and npm; verified with Node.js **22.22.0**. No API keys, accounts, or environment variables are needed.
 
 ```sh
-git clone git@github.com:Crepiks/fintech-expense-tracker-shot-1.git
+git clone https://github.com/Crepiks/fintech-expense-tracker-shot-1.git
 cd fintech-expense-tracker-shot-1
-git switch feat/expense-tracker
 npm install
 npm run dev
 ```
@@ -59,7 +58,7 @@ Choose **Run validation scenario** in the footer. It executes the real reducer a
 
 Each stage also verifies the record count and that category sums equal the total. Use **Run again** to repeat the scenario without closing it. To verify persistence yourself, enter the same three records in one month, reload, delete the 900 record, reload again, then switch months and back. Open a second tab on the exact same origin to check synchronization.
 
-`npm test` enforces **100% lines, branches, functions, and statements per application file**, including components, hooks, storage, and domain logic. Only `src/main.tsx` is excluded: it only mounts the React root, which is checked in the browser. Tests use concrete expected values, fake clock/randomness/browser storage boundaries, and real components and reducers. See [verification evidence](docs/verification.md) for the checks performed and their limits.
+`npm test` enforces **100% lines, branches, functions, and statements per application file**, including components, hooks, storage, and domain logic. Latest local run: **211 tests across 19 files passed; 100% line and branch coverage** (also 100% statements and functions). Only `src/main.tsx` is excluded: it only mounts the React root, which is checked in the browser. Tests use concrete expected values, fake clock/randomness/browser storage boundaries, and real components and reducers. See [verification evidence](docs/verification.md) for the checks performed and their limits.
 
 ## Architecture and design notes
 
@@ -91,15 +90,17 @@ The single currency is defined by `CURRENCY` in `src/config.ts`. Changing it cha
 - A malformed or unsupported payload is backed up under `expense-tracker:v1:backup` before recovery when storage permits. A later recovery can replace that backup. If storage is blocked or full, the banner explains that in-memory changes may be lost on closing/reloading.
 - Seven categories are fixed. There is no edit action yet; delete and re-add to correct a record.
 - The monthly budget is one shared limit applied to every month, not separate historical budgets. Future-dated records count in their dated month. The daily allowance is arithmetic on entered data, not a forecast.
-- Modern browsers with `crypto.randomUUID` and native `<dialog>` support are required. Use localhost for development and HTTPS for deployment.
+- Modern browsers with native `<dialog>` support are required; older browsers have not been tested. Expense ids use `crypto.randomUUID` when available, with a timestamp/random fallback. Use localhost for development and HTTPS for deployment.
 
-**No AI and no external APIs are used at runtime.** The app makes no application-data network requests and loads no remote fonts, images, analytics, or services. Loading the static app itself still requires a web server; offline installation is not implemented.
+**No runtime AI or external API calls.** Development was AI-assisted. The app makes no application-data network requests and loads no remote fonts, scripts, images, analytics, or services. A browser fetches the static HTML, JavaScript, CSS, and icon from the same origin. Once loaded, recording expenses, calculations, and local persistence work without a network connection. **Offline reload is not supported:** there is no service worker or offline installation, and cached files are not guaranteed. A locally running preview remains usable without internet access.
 
 ## Deployment
 
 The production build uses Vite `base: './'`, so static assets resolve from the deployed path. Any static HTTPS host can serve `dist/`. `.openai/hosting.json` configures this project’s Sites deployment as static-only.
 
-The hosting project has been registered, but publication is awaiting explicit approval for the separate hosting destination. No live deployment is claimed yet.
+The configured Sites project currently has owner-only access. Public audience expansion was blocked by automatic approval review and requires explicit authorization; no public demo is claimed.
+
+Serve the build through `npm run build && npm run preview` or an HTTPS static host. Double-clicking `dist/index.html` is not supported because browsers restrict ES modules on `file://`. No single-file plugin or service worker is included.
 
 ## Roadmap
 

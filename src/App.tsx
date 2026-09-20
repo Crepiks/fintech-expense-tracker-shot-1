@@ -45,7 +45,7 @@ export default function App() {
   }
 
   function addExpense(value: ExpenseValue) {
-    add({ ...value, id: crypto.randomUUID(), createdAt: Date.now() });
+    add({ ...value, id: crypto.randomUUID?.() ?? Date.now().toString(36) + Math.random().toString(36).slice(2), createdAt: Date.now() });
   }
 
   return <div className="app-shell">
