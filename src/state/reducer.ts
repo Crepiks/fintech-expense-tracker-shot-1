@@ -13,10 +13,14 @@ export function expensesReducer(state: StoredData, action: ExpenseAction): Store
   switch (action.type) {
     case 'add':
     case 'restore':
-      if (state.expenses.length >= MAX_EXPENSES || state.expenses.some(item => item.id === action.expense.id)) return state;
+      if (
+        state.expenses.length >= MAX_EXPENSES ||
+        state.expenses.some((item) => item.id === action.expense.id)
+      )
+        return state;
       return { ...state, expenses: [...state.expenses, action.expense] };
     case 'remove':
-      return { ...state, expenses: state.expenses.filter(item => item.id !== action.id) };
+      return { ...state, expenses: state.expenses.filter((item) => item.id !== action.id) };
     case 'replaceAll':
       return action.data;
     case 'setStipendDay':

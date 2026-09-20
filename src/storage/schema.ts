@@ -10,19 +10,37 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 function validMinor(value: unknown): value is number {
-  return typeof value === 'number' && Number.isSafeInteger(value) && value > 0 && value <= MAX_AMOUNT_MINOR;
+  return (
+    typeof value === 'number' &&
+    Number.isSafeInteger(value) &&
+    value > 0 &&
+    value <= MAX_AMOUNT_MINOR
+  );
 }
 function readExpense(value: unknown): Expense | null {
-  if (!isObject(value) || typeof value.id !== 'string' || !value.id.trim()
-    || !validMinor(value.amountMinor) || !isCategory(value.category)
-    || typeof value.date !== 'string' || !isValidDate(value.date)
-    || typeof value.createdAt !== 'number' || !Number.isSafeInteger(value.createdAt) || value.createdAt < 0
-    || (value.description !== undefined && typeof value.description !== 'string')) return null;
+  if (
+    !isObject(value) ||
+    typeof value.id !== 'string' ||
+    !value.id.trim() ||
+    !validMinor(value.amountMinor) ||
+    !isCategory(value.category) ||
+    typeof value.date !== 'string' ||
+    !isValidDate(value.date) ||
+    typeof value.createdAt !== 'number' ||
+    !Number.isSafeInteger(value.createdAt) ||
+    value.createdAt < 0 ||
+    (value.description !== undefined && typeof value.description !== 'string')
+  )
+    return null;
   const expense: Expense = {
-    id: value.id, amountMinor: value.amountMinor, category: value.category,
-    date: value.date, createdAt: value.createdAt,
+    id: value.id,
+    amountMinor: value.amountMinor,
+    category: value.category,
+    date: value.date,
+    createdAt: value.createdAt,
   };
-  if (typeof value.description === 'string') expense.description = value.description.trim().slice(0, 200);
+  if (typeof value.description === 'string')
+    expense.description = value.description.trim().slice(0, 200);
   return expense;
 }
 
@@ -30,8 +48,11 @@ function readExpense(value: unknown): Expense | null {
 export function parseStoredData(raw: string | null): { data: StoredData; recovered: boolean } {
   if (raw === null) return { data: emptyData(), recovered: false };
   let value: unknown;
-  try { value = JSON.parse(raw); }
-  catch { return { data: emptyData(), recovered: true }; }
+  try {
+    value = JSON.parse(raw);
+  } catch {
+    return { data: emptyData(), recovered: true };
+  }
   if (!isObject(value) || value.version !== 1 || !Array.isArray(value.expenses)) {
     return { data: emptyData(), recovered: true };
   }
@@ -57,7 +78,13 @@ export function parseStoredData(raw: string | null): { data: StoredData; recover
         else recovered = true;
       }
       if (stipendDay !== undefined && stipendDay !== null) {
-        if (typeof stipendDay === 'number' && Number.isInteger(stipendDay) && stipendDay >= 1 && stipendDay <= 31) data.settings.stipendDay = stipendDay;
+        if (
+          typeof stipendDay === 'number' &&
+          Number.isInteger(stipendDay) &&
+          stipendDay >= 1 &&
+          stipendDay <= 31
+        )
+          data.settings.stipendDay = stipendDay;
         else recovered = true;
       }
     }

@@ -27,7 +27,9 @@ it('persists add, remove, restore and budget changes across remounts', () => {
   expect(next.result.current.settings.monthlyBudgetMinor).toBe(500000);
 });
 it('shows and then clears a write failure notice after a successful change', () => {
-  const fail = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('quota'); });
+  const fail = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+    throw new Error('quota');
+  });
   const { result } = renderHook(useExpenses);
   expect(result.current.storageNotice).toContain('Could not save');
   act(() => result.current.add(expense));
@@ -66,7 +68,9 @@ it('clears state when another tab removes storage', () => {
 it('warns on corrupt data received from another tab', () => {
   const { result } = renderHook(useExpenses);
   localStorage.setItem(STORAGE_KEY, 'bad');
-  act(() => window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY, newValue: 'bad' })));
+  act(() =>
+    window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY, newValue: 'bad' })),
+  );
   expect(result.current.storageNotice).toContain('recovered');
 });
 it('ignores a delayed snapshot when this tab has already saved newer data', () => {
@@ -75,7 +79,9 @@ it('ignores a delayed snapshot when this tab has already saved newer data', () =
   localStorage.setItem(STORAGE_KEY, remoteRaw);
   const newer = { ...expense, id: 'newer', amountMinor: 20000 };
   act(() => result.current.add(newer));
-  act(() => window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY, newValue: remoteRaw })));
+  act(() =>
+    window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY, newValue: remoteRaw })),
+  );
   expect(result.current.expenses).toEqual([newer]);
   act(() => result.current.setBudget(100000));
   expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).expenses).toEqual([newer]);

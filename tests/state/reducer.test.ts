@@ -14,24 +14,37 @@ it('removes only the matching id', () => {
 it('restores the same record and id', () => {
   expect(expensesReducer(empty, { type: 'restore', expense }).expenses).toEqual([expense]);
 });
-it.each(['add', 'restore'] as const)('does not duplicate an id on %s', type => {
+it.each(['add', 'restore'] as const)('does not duplicate an id on %s', (type) => {
   expect(expensesReducer(data, { type, expense })).toBe(data);
 });
 it('replaces state with validated data', () => {
   expect(expensesReducer(empty, { type: 'replaceAll', data })).toBe(data);
 });
 it('sets and clears the monthly budget', () => {
-  expect(expensesReducer(empty, { type: 'setBudget', minor: 250000 }).settings.monthlyBudgetMinor).toBe(250000);
-  expect(expensesReducer(data, { type: 'setBudget', minor: null }).settings.monthlyBudgetMinor).toBeNull();
+  expect(
+    expensesReducer(empty, { type: 'setBudget', minor: 250000 }).settings.monthlyBudgetMinor,
+  ).toBe(250000);
+  expect(
+    expensesReducer(data, { type: 'setBudget', minor: null }).settings.monthlyBudgetMinor,
+  ).toBeNull();
 });
 it('enforces the record cap for add and restore', () => {
-  const full = { ...data, expenses: Array.from({ length: 10000 }, (_, i) => ({ ...expense, id: String(i) })) };
+  const full = {
+    ...data,
+    expenses: Array.from({ length: 10000 }, (_, i) => ({ ...expense, id: String(i) })),
+  };
   expect(expensesReducer(full, { type: 'add', expense })).toBe(full);
   expect(expensesReducer(full, { type: 'restore', expense })).toBe(full);
 });
 it('sets and clears stipend day while keeping the budget, and vice versa', () => {
   const withStipend = expensesReducer(data, { type: 'setStipendDay', day: 31 });
   expect(withStipend.settings).toEqual({ monthlyBudgetMinor: 500000, stipendDay: 31 });
-  expect(expensesReducer(withStipend, { type: 'setBudget', minor: null }).settings).toEqual({ monthlyBudgetMinor: null, stipendDay: 31 });
-  expect(expensesReducer(withStipend, { type: 'setStipendDay', day: null }).settings).toEqual({ monthlyBudgetMinor: 500000, stipendDay: null });
+  expect(expensesReducer(withStipend, { type: 'setBudget', minor: null }).settings).toEqual({
+    monthlyBudgetMinor: null,
+    stipendDay: 31,
+  });
+  expect(expensesReducer(withStipend, { type: 'setStipendDay', day: null }).settings).toEqual({
+    monthlyBudgetMinor: 500000,
+    stipendDay: null,
+  });
 });

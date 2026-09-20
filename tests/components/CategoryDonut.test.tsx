@@ -11,12 +11,18 @@ it('shows a gray empty ring with a zero total and no filter buttons', () => {
   expect(screen.queryAllByRole('button')).toHaveLength(0);
 });
 it('renders proportional slices and named amounts', () => {
-  const totals = computeTotals([expense, { ...expense, id: 'two', category: 'Transportation', amountMinor: 50000 }]);
+  const totals = computeTotals([
+    expense,
+    { ...expense, id: 'two', category: 'Transportation', amountMinor: 50000 },
+  ]);
   render(<CategoryDonut totals={totals} filter={null} onFilter={vi.fn()} />);
   const food = screen.getByRole('button', { name: 'Food: USD 1,500' });
   expect(food).toHaveAttribute('stroke-dasharray', '75 25');
   expect(food).toHaveAttribute('stroke-dashoffset', '25');
-  expect(screen.getByRole('button', { name: 'Transportation: USD 500' })).toHaveAttribute('stroke-dashoffset', '50');
+  expect(screen.getByRole('button', { name: 'Transportation: USD 500' })).toHaveAttribute(
+    'stroke-dashoffset',
+    '50',
+  );
   expect(screen.getByRole('button', { name: 'Filter Food' })).toHaveTextContent('75%');
 });
 it('toggles category filters by slice, legend, and keyboard', () => {
@@ -35,15 +41,23 @@ it('toggles category filters by slice, legend, and keyboard', () => {
   expect(onFilter).toHaveBeenCalledTimes(4);
   fireEvent.keyDown(slice, { key: 'ArrowRight' });
   expect(onFilter).toHaveBeenCalledTimes(4);
-  expect(screen.getByRole('button', { name: 'Filter Food' })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('button', { name: 'Filter Food' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
 });
 
 it('sorts slices by descending amount and dims only other categories', () => {
-  const totals = computeTotals([expense, { ...expense, id: 'two', category: 'Transportation', amountMinor: 450000 }]);
+  const totals = computeTotals([
+    expense,
+    { ...expense, id: 'two', category: 'Transportation', amountMinor: 450000 },
+  ]);
   render(<CategoryDonut totals={totals} filter="Food" onFilter={vi.fn()} />);
   const transport = screen.getByRole('button', { name: 'Transportation: USD 4,500' });
   expect(transport).toHaveAttribute('stroke-dashoffset', '25');
   expect(transport).toHaveAttribute('opacity', '0.35');
   expect(screen.getByRole('button', { name: 'Food: USD 1,500' })).toHaveAttribute('opacity', '1');
-  expect(screen.getByLabelText('Spending by category: Transportation 75%, Food 25%')).toBeInTheDocument();
+  expect(
+    screen.getByLabelText('Spending by category: Transportation 75%, Food 25%'),
+  ).toBeInTheDocument();
 });

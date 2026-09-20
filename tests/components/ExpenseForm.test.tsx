@@ -3,12 +3,22 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, afterEach, expect, it, vi } from 'vitest';
 import { ExpenseForm } from '../../src/components/ExpenseForm';
 
-beforeEach(() => { vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date(2026, 8, 19, 12)); });
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date(2026, 8, 19, 12));
+});
 afterEach(() => vi.useRealTimers());
 const setup = (canAdd = true) => {
   const onAdd = vi.fn();
   const onMonthChange = vi.fn();
-  render(<ExpenseForm selectedMonth="2026-09" onAdd={onAdd} onMonthChange={onMonthChange} canAdd={canAdd} />);
+  render(
+    <ExpenseForm
+      selectedMonth="2026-09"
+      onAdd={onAdd}
+      onMonthChange={onMonthChange}
+      canAdd={canAdd}
+    />,
+  );
   return { onAdd, onMonthChange, user: userEvent.setup() };
 };
 it('explains invalid fields and focuses the first invalid input', async () => {
@@ -28,7 +38,12 @@ it('submits normalized values and resets only amount and description', async () 
   await user.selectOptions(screen.getByLabelText('Category'), 'Food');
   await user.type(screen.getByLabelText('Description (optional)'), '  Groceries  ');
   await user.click(screen.getByRole('button', { name: 'Add an expense' }));
-  expect(onAdd).toHaveBeenCalledWith({ amountMinor: 150000, category: 'Food', date: '2026-09-19', description: 'Groceries' });
+  expect(onAdd).toHaveBeenCalledWith({
+    amountMinor: 150000,
+    category: 'Food',
+    date: '2026-09-19',
+    description: 'Groceries',
+  });
   expect(screen.getByLabelText('Amount (USD)')).toHaveValue('');
   expect(screen.getByLabelText('Description (optional)')).toHaveValue('');
   expect(screen.getByLabelText('Category')).toHaveValue('Food');

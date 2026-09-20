@@ -14,7 +14,9 @@ it('restores the exact deleted record when Undo is pressed', () => {
 });
 it('expires after five seconds and cancels the previous delete timer', () => {
   const onExpire = vi.fn();
-  const { rerender, unmount } = render(<UndoToast expense={expense} onUndo={vi.fn()} onExpire={onExpire} />);
+  const { rerender, unmount } = render(
+    <UndoToast expense={expense} onUndo={vi.fn()} onExpire={onExpire} />,
+  );
   act(() => vi.advanceTimersByTime(4000));
   expect(onExpire).not.toHaveBeenCalled();
   rerender(<UndoToast expense={{ ...expense, id: 'two' }} onUndo={vi.fn()} onExpire={onExpire} />);

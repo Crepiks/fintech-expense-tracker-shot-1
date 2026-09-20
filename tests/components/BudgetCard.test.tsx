@@ -2,12 +2,21 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { expect, it, vi } from 'vitest';
 import { BudgetCard } from '../../src/components/BudgetCard';
 
-const base = { spentMinor: 300000, month: '2026-09', today: '2026-09-19', onSave: vi.fn(), stipendDay: null, onStipendSave: vi.fn() };
+const base = {
+  spentMinor: 300000,
+  month: '2026-09',
+  today: '2026-09-19',
+  onSave: vi.fn(),
+  stipendDay: null,
+  onStipendSave: vi.fn(),
+};
 it('invites a budget and saves exact parsed values', () => {
   const onSave = vi.fn();
   render(<BudgetCard {...base} budgetMinor={null} onSave={onSave} />);
   expect(screen.getByText('Give your spending a little direction.')).toBeInTheDocument();
-  fireEvent.change(screen.getByLabelText('Monthly budget (USD)'), { target: { value: '5,000.50' } });
+  fireEvent.change(screen.getByLabelText('Monthly budget (USD)'), {
+    target: { value: '5,000.50' },
+  });
   fireEvent.click(screen.getByRole('button', { name: 'Save budget' }));
   expect(onSave).toHaveBeenCalledWith(500050);
   expect(screen.getByRole('status')).toHaveTextContent('Budget saved.');
@@ -55,7 +64,13 @@ it('omits current-day guidance for historical months and accepts synced budgets'
   expect(screen.getByLabelText('Monthly budget (USD)')).toHaveValue('');
 });
 
-it.each([['0', false], ['32', false], ['1.5', false], ['31', true], ['', true]])('validates stipend input %s before saving settings', (input, valid) => {
+it.each([
+  ['0', false],
+  ['32', false],
+  ['1.5', false],
+  ['31', true],
+  ['', true],
+])('validates stipend input %s before saving settings', (input, valid) => {
   const onSave = vi.fn();
   const onStipendSave = vi.fn();
   render(<BudgetCard {...base} budgetMinor={null} onSave={onSave} onStipendSave={onStipendSave} />);
@@ -64,7 +79,9 @@ it.each([['0', false], ['32', false], ['1.5', false], ['31', true], ['', true]])
   if (valid) {
     expect(onStipendSave).toHaveBeenCalledWith(input === '' ? null : 31);
   } else {
-    expect(screen.getByText('Choose a whole day from 1 to 31, or leave empty.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Choose a whole day from 1 to 31, or leave empty.'),
+    ).toBeInTheDocument();
     expect(onSave).not.toHaveBeenCalled();
     expect(onStipendSave).not.toHaveBeenCalled();
   }
@@ -75,8 +92,15 @@ it('shows today or a countdown independently of the month being viewed', () => {
   rerender(<BudgetCard {...base} budgetMinor={null} month="2026-08" stipendDay={1} />);
   expect(screen.getByText('Stipend in 12 days (Oct 1, 2026)')).toBeInTheDocument();
 });
-it.each([[80000, '80% used'], [100000, '100% used'], [120000, '120% used']])('prints actual percentage at spending %i', (spentMinor, label) => {
+it.each([
+  [80000, '80% used'],
+  [100000, '100% used'],
+  [120000, '120% used'],
+])('prints actual percentage at spending %i', (spentMinor, label) => {
   render(<BudgetCard {...base} budgetMinor={100000} spentMinor={spentMinor} />);
   expect(screen.getByText(label)).toBeInTheDocument();
-  expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', spentMinor === 80000 ? '80' : '100');
+  expect(screen.getByRole('progressbar')).toHaveAttribute(
+    'aria-valuenow',
+    spentMinor === 80000 ? '80' : '100',
+  );
 });

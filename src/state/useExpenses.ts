@@ -20,17 +20,24 @@ export function useExpenses() {
       lastSaved.current = raw;
       setStorageNotice(initialNotice.current);
     } else {
-      setStorageNotice('Could not save. Storage is full or unavailable. Changes are only in this tab until saving succeeds.');
+      setStorageNotice(
+        'Could not save. Storage is full or unavailable. Changes are only in this tab until saving succeeds.',
+      );
     }
   }, [state]);
 
-  useEffect(() => subscribe((incoming, raw) => {
-    if (raw === lastSaved.current) return;
-    // Remote updates must not echo writes back to the originating tab.
-    lastSaved.current = JSON.stringify(incoming.data);
-    if (incoming.recovered) setStorageNotice('Data from another tab was recovered. Invalid records were removed.');
-    dispatch({ type: 'replaceAll', data: incoming.data });
-  }), []);
+  useEffect(
+    () =>
+      subscribe((incoming, raw) => {
+        if (raw === lastSaved.current) return;
+        // Remote updates must not echo writes back to the originating tab.
+        lastSaved.current = JSON.stringify(incoming.data);
+        if (incoming.recovered)
+          setStorageNotice('Data from another tab was recovered. Invalid records were removed.');
+        dispatch({ type: 'replaceAll', data: incoming.data });
+      }),
+    [],
+  );
 
   return {
     expenses: state.expenses,

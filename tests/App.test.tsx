@@ -9,18 +9,29 @@ beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] });
   vi.setSystemTime(new Date(2026, 8, 19, 12));
   let nextId = 0;
-  vi.spyOn(crypto, 'randomUUID').mockImplementation(() => `00000000-0000-4000-8000-${String(++nextId).padStart(12, '0')}`);
+  vi.spyOn(crypto, 'randomUUID').mockImplementation(
+    () => `00000000-0000-4000-8000-${String(++nextId).padStart(12, '0')}`,
+  );
 });
-afterEach(() => { vi.restoreAllMocks(); vi.useRealTimers(); });
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
+});
 it('renders the application landmark', () => {
   render(<App />);
   expect(screen.getByRole('main', { name: 'Pocket Ledger' })).toBeInTheDocument();
-  expect(screen.getByRole('heading', { name: 'A clearer picture of your spending.' })).toBeInTheDocument();
+  expect(
+    screen.getByRole('heading', { name: 'A clearer picture of your spending.' }),
+  ).toBeInTheDocument();
 });
 it('adds the required scenario and persists the deletion after remounting', async () => {
   const user = userEvent.setup();
   const { unmount } = render(<App />);
-  for (const [amount, category] of [['1500', 'Food'], ['600', 'Transportation'], ['900', 'Food']]) {
+  for (const [amount, category] of [
+    ['1500', 'Food'],
+    ['600', 'Transportation'],
+    ['900', 'Food'],
+  ]) {
     await user.type(screen.getByLabelText('Amount (USD)'), amount);
     await user.selectOptions(screen.getByLabelText('Category'), category);
     await user.click(screen.getByRole('button', { name: 'Add an expense' }));
@@ -69,7 +80,10 @@ it('undoes the latest deletion with the original id', async () => {
 it('filters only the list, toggles off, clears explicitly, and resets on month changes', async () => {
   const user = userEvent.setup();
   render(<App />);
-  for (const [amount, category] of [['10', 'Food'], ['20', 'Transportation']]) {
+  for (const [amount, category] of [
+    ['10', 'Food'],
+    ['20', 'Transportation'],
+  ]) {
     await user.type(screen.getByLabelText('Amount (USD)'), amount);
     await user.selectOptions(screen.getByLabelText('Category'), category);
     await user.click(screen.getByRole('button', { name: 'Add an expense' }));
@@ -99,7 +113,14 @@ it('persists budget edits and derives remaining from the current month', async (
 });
 it('explains when Undo cannot restore into a refilled full ledger', async () => {
   const { expense, data } = await import('./fixtures');
-  const full = { ...data, expenses: Array.from({ length: 10000 }, (_, index) => ({ ...expense, id: String(index), date: index === 0 ? '2026-09-19' : '2026-08-01' })) };
+  const full = {
+    ...data,
+    expenses: Array.from({ length: 10000 }, (_, index) => ({
+      ...expense,
+      id: String(index),
+      date: index === 0 ? '2026-09-19' : '2026-08-01',
+    })),
+  };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(full));
   render(<App />);
   fireEvent.click(screen.getByRole('button', { name: 'Delete expense' }));
@@ -113,7 +134,10 @@ it('explains when Undo cannot restore into a refilled full ledger', async () => 
 it('clears a filter when its last expense is deleted and leaves undo unfiltered', async () => {
   const user = userEvent.setup();
   render(<App />);
-  for (const [amount, category] of [['10', 'Food'], ['20', 'Transportation']]) {
+  for (const [amount, category] of [
+    ['10', 'Food'],
+    ['20', 'Transportation'],
+  ]) {
     await user.type(screen.getByLabelText('Amount (USD)'), amount);
     await user.selectOptions(screen.getByLabelText('Category'), category);
     await user.click(screen.getByRole('button', { name: 'Add an expense' }));
@@ -159,5 +183,7 @@ it('can save an expense when randomUUID is unavailable', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Add an expense' }));
     expect(screen.getByLabelText('Total spent')).toHaveTextContent('USD 15');
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).expenses[0].id).toMatch(/^[a-z0-9]+$/);
-  } finally { vi.unstubAllGlobals(); }
+  } finally {
+    vi.unstubAllGlobals();
+  }
 });

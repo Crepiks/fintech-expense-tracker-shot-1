@@ -2,7 +2,10 @@ import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { useToday } from '../../src/state/useToday';
 
-beforeEach(() => { vi.useFakeTimers(); vi.setSystemTime(new Date(2026, 8, 30, 23, 59, 59)); });
+beforeEach(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date(2026, 8, 30, 23, 59, 59));
+});
 afterEach(() => vi.useRealTimers());
 it('updates the local date at midnight while a page remains open', () => {
   const { result } = renderHook(useToday);
