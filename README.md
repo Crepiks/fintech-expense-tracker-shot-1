@@ -108,6 +108,17 @@ Sites deployment succeeded for application revision `330260a`. The link above in
 
 Serve the build through `npm run build && npm run preview` or an HTTPS static host. Double-clicking `dist/index.html` is not supported because browsers restrict ES modules on `file://`. No single-file plugin or service worker is included.
 
+## Agent skills
+
+Project skills are mirrored in [`.agents/skills/`](.agents/skills/) for Codex and [`.claude/skills/`](.claude/skills/) for Claude Code. Both include the repository's branch, commit, and pull request requirements, plus these skills copied from [Vercel's agent-skills](https://github.com/vercel-labs/agent-skills/tree/063bee94c3f4df8453406c830b0a7df0f2860278/skills):
+
+- `composition-patterns`: React component composition and reusable APIs.
+- `react-best-practices`: React and Next.js performance guidance.
+- `react-view-transitions`: React view transition patterns and reference material.
+- `web-design-guidelines`: UI reviews using the upstream Web Interface Guidelines fetched at review time.
+
+The four upstream directories, including their supporting files and metadata, are preserved unchanged at revision `063bee94c3f4df8453406c830b0a7df0f2860278`. To update them, copy all four directories from the chosen upstream revision into both skill locations, update this revision, and run `diff -r .agents/skills .claude/skills` to verify the mirrors match.
+
 ## Roadmap
 
 - Edit existing expenses.
