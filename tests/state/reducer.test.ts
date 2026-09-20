@@ -48,3 +48,95 @@ it('sets and clears stipend day while keeping the budget, and vice versa', () =>
     stipendDay: null,
   });
 });
+
+it('updates only an existing expense while preserving other records', () => {
+  const state = { ...data, expenses: [expense, { ...expense, id: 'two' }] };
+  const updated = { ...expense, amountMinor: 250, fixed: true };
+  expect(expensesReducer(state, { type: 'update', expense: updated }).expenses).toEqual([
+    updated,
+    state.expenses[1],
+  ]);
+  expect(state.expenses[0].amountMinor).toBe(150000);
+  expect(expensesReducer(empty, { type: 'update', expense: updated })).toBe(empty);
+});
+
+it('sets and clears individual category limits while preserving other settings', () => {
+  const food = expensesReducer(data, { type: 'setCategoryLimit', category: 'Food', minor: 20000 });
+  const fun = expensesReducer(food, { type: 'setCategoryLimit', category: 'Fun', minor: 5000 });
+  expect(fun.settings).toEqual({ ...data.settings, categoryLimits: { Food: 20000, Fun: 5000 } });
+  expect(
+    expensesReducer(fun, { type: 'setCategoryLimit', category: 'Food', minor: null }).settings
+      .categoryLimits,
+  ).toEqual({ Fun: 5000 });
+  expect(
+    expensesReducer(empty, { type: 'setCategoryLimit', category: 'Food', minor: null }).settings
+      .categoryLimits,
+  ).toEqual({});
+});
+
+it('imports a complete batch without modifying existing expenses', () => {
+  const imported = [
+    { ...expense, id: 'two' },
+    { ...expense, id: 'three' },
+  ];
+  expect(expensesReducer(data, { type: 'importExpenses', expenses: imported }).expenses).toEqual([
+    expense,
+    ...imported,
+  ]);
+  expect(expensesReducer(data, { type: 'importExpenses', expenses: [] })).toBe(data);
+});
+
+it('rejects duplicate ids and over-capacity imports without a partial write', () => {
+  const other = { ...expense, id: 'two' };
+  expect(expensesReducer(data, { type: 'importExpenses', expenses: [other, expense] })).toBe(data);
+  expect(expensesReducer(empty, { type: 'importExpenses', expenses: [other, other] })).toBe(empty);
+  const batch = Array.from({ length: 10000 }, (_, i) => ({ ...expense, id: String(i) }));
+  expect(expensesReducer(data, { type: 'importExpenses', expenses: batch })).toBe(data);
+  expect(expensesReducer(empty, { type: 'importExpenses', expenses: batch }).expenses).toHaveLength(
+    10000,
+  );
+});
+
+const recurring = {
+  id: 'rent',
+  description: 'Rent',
+  category: 'Housing' as const,
+  amountMinor: 50000,
+  day: 1,
+  startDate: '2026-09-01',
+  lastAppliedMonth: null,
+};
+
+it('adds unique recurring rules and removes rules without removing past expenses', () => {
+  const one = expensesReducer(data, { type: 'addRecurring', cost: recurring });
+  const two = expensesReducer(one, { type: 'addRecurring', cost: { ...recurring, id: 'gym' } });
+  expect(two.settings.recurring).toEqual([recurring, { ...recurring, id: 'gym' }]);
+  expect(expensesReducer(one, { type: 'addRecurring', cost: recurring })).toBe(one);
+  expect(expensesReducer(two, { type: 'removeRecurring', id: 'rent' })).toEqual({
+    ...data,
+    settings: { ...data.settings, recurring: [{ ...recurring, id: 'gym' }] },
+  });
+  expect(
+    expensesReducer(empty, { type: 'removeRecurring', id: 'missing' }).settings.recurring,
+  ).toEqual([]);
+});
+
+it('does not add rules above the supported rule limit', () => {
+  const state = {
+    ...empty,
+    settings: {
+      ...empty.settings,
+      recurring: Array.from({ length: 10000 }, (_, i) => ({ ...recurring, id: String(i) })),
+    },
+  };
+  expect(expensesReducer(state, { type: 'addRecurring', cost: recurring })).toBe(state);
+});
+
+it('materializes due recurring costs through the reducer', () => {
+  const state = { ...empty, settings: { ...empty.settings, recurring: [recurring] } };
+  const result = expensesReducer(state, { type: 'applyRecurring', today: '2026-09-20' });
+  expect(result.expenses).toMatchObject([
+    { id: 'recurring:rent:2026-09', amountMinor: 50000, fixed: true, recurringId: 'rent' },
+  ]);
+  expect(result.settings.recurring?.[0].lastAppliedMonth).toBe('2026-09');
+});

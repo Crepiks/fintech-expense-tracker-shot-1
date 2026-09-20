@@ -22,12 +22,8 @@
       "rules": { "react/refs": "off" }
     },
     {
-      "files": ["src/components/BudgetCard.tsx"],
+      "files": ["src/components/BudgetCard.tsx", "src/components/LimitInput.tsx"],
       "rules": { "react/set-state-in-effect": "off" }
-    },
-    {
-      "files": ["src/components/CategoryDonut.tsx"],
-      "rules": { "react/immutability": "off" }
     }
   ],
   "ignorePatterns": [

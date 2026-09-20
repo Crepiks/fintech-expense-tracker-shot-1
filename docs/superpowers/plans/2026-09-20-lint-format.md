@@ -42,7 +42,7 @@
 - Configuration and formatting changes are verified through the tools themselves and the existing behavior suite; no application behavior or coverage exclusions are added.
 - Continue implementation without a separate plan approval because the task explicitly requests completion in this task.
 
-## Verification results
+## Initial verification results (before the redesign)
 
 - Node.js 24.21.0 and the committed npm lockfile: clean install succeeded.
 - `npm run lint`, `npm run lint:fix`, `npm run format:check`, and `npm run build`: passed.
@@ -52,3 +52,12 @@
 - Both skill directories remain identical. Independent review found no actionable findings.
 - Scoped exceptions preserve the initial storage notice, budget input synchronization, and synchronous chart offset calculation; the README documents their exact files and rules.
 - Commit order: formatting first, then tooling and documentation, keeping the mechanical changes separate.
+
+## Integration with redesigned trunk (`c067962`)
+
+- Merged the redesign into the existing PR branch, preserving its screens, assets, domain behavior, tests, and component deletions. Reapplied Prettier to supported files.
+- Removed the obsolete `CategoryDonut.tsx` exception. Extended the existing, file-scoped input synchronization exception to `LimitInput.tsx`.
+- Stabilized `useExpenses.applyRecurring` with `useCallback` and declared it in the consuming effect's dependencies. The day, rules, and record-count triggers remain intact, including capacity retry.
+- Added a regression test showing that an effect depending on this action does not rerun for an unrelated budget change or parent render. It failed before the fix (two effect runs instead of one) and passed afterward.
+- Final local checks: lint, formatting verification, production build, and 612 tests in 44 files passed. Coverage is 100% lines, branches, statements, and functions per application file.
+- 95 other changed source/test/HTML files exactly match Prettier output from trunk. All trunk lockfile dependencies are preserved. Shared skill copies remain identical.

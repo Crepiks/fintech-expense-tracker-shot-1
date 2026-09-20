@@ -1,0 +1,173 @@
+@media (width >= 900px) {
+  .mobile-only {
+    display: none !important;
+  }
+
+  .desktop-only {
+    display: revert !important;
+  }
+
+  .app-shell {
+    padding-bottom: 0;
+  }
+
+  .site-header {
+    border-bottom: 1px solid var(--border);
+    background: #fff;
+    align-items: center;
+    gap: 28px;
+    height: 72px;
+    padding: 0 32px;
+    display: flex;
+  }
+
+  .wordmark {
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+  }
+
+  .brand-mark {
+    background: var(--blue);
+    border-radius: 5px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .desktop-nav {
+    gap: 4px;
+    display: flex;
+  }
+
+  .desktop-nav button {
+    font: 500 13px var(--mono);
+    background: none;
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+
+  .desktop-nav button[aria-current='page'] {
+    color: #fff;
+    background: #13161b;
+  }
+
+  .command-trigger {
+    text-align: left;
+    height: 44px;
+    font: 400 14px var(--mono);
+    color: #7b818c;
+    background: #f9fafb;
+    border: 1px solid #d9dce2;
+    border-radius: 10px;
+    flex: 1;
+    align-items: center;
+    gap: 10px;
+    padding: 0 8px 0 14px;
+    display: flex;
+  }
+
+  .command-trigger span {
+    flex: 1;
+  }
+
+  .command-trigger kbd {
+    color: var(--muted);
+    background: #fff;
+    border: 1px solid #d9dce2;
+    border-radius: 6px;
+    padding: 3px 7px;
+    font-size: 12px;
+  }
+
+  .mobile-nav {
+    display: none;
+  }
+
+  .page {
+    padding: 24px 32px;
+  }
+
+  .page-heading {
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-size: 30px;
+  }
+
+  .view-title {
+    flex-direction: column;
+  }
+
+  .app-status {
+    max-width: 480px;
+    bottom: 24px;
+    left: auto;
+    right: 24px;
+  }
+
+  .undo-toast {
+    min-width: 360px;
+    bottom: 24px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+
+  .modal {
+    max-height: 85dvh;
+  }
+
+  .site-header .icon-button {
+    font-size: 14px;
+  }
+
+  .stats.desktop-only {
+    display: grid !important;
+  }
+}
+
+@media (width >= 900px) and (width <= 1080px) {
+  .site-header {
+    gap: 16px;
+    padding: 0 24px;
+  }
+
+  .command-trigger {
+    font-size: 12px;
+  }
+
+  .command-trigger kbd {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  button {
+    transition:
+      background-color 0.12s,
+      color 0.12s,
+      box-shadow 0.12s;
+  }
+
+  .modal[open] {
+    animation: 0.15s ease-out modal-in;
+  }
+
+  @keyframes modal-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

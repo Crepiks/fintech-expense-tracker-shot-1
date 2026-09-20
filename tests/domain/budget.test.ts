@@ -56,3 +56,22 @@ it('counts every day in a 30-day month from its first day', () => {
 it('keeps the actual percentage even when the visual bar is capped', () => {
   expect(computeBudget(20000, 30000, '2026-04', '2026-04-30')).toMatchObject({ pctUsed: 150 });
 });
+
+it('reserves pending fixed costs in the daily allowance without treating them as recorded spending', () => {
+  expect(computeBudget(61000, 0, '2026-09', '2026-09-20', 50000)).toEqual({
+    remainingMinor: 61000,
+    overBudget: false,
+    progress: 0,
+    pctUsed: 0,
+    daysLeft: 11,
+    safePerDayMinor: 1000,
+  });
+});
+
+it('clamps the daily allowance when pending fixed costs exhaust the unspent budget', () => {
+  expect(computeBudget(40000, 0, '2026-09', '2026-09-20', 50000)).toMatchObject({
+    remainingMinor: 40000,
+    overBudget: false,
+    safePerDayMinor: 0,
+  });
+});

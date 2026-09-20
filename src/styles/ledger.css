@@ -1,0 +1,268 @@
+.ledger-page {
+  flex-direction: column;
+  gap: 12px;
+  display: flex;
+}
+
+.ledger-page .page-heading {
+  margin-bottom: 0;
+}
+
+.search-box {
+  background: #fff;
+  border: 1px solid #d9dce2;
+  border-radius: 12px;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 12px;
+  display: flex;
+}
+
+.search-box svg {
+  width: 16px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.search-box input {
+  width: 0;
+  min-width: 0;
+  font: 400 13px var(--mono);
+  background: none;
+  border: 0;
+  outline: 0;
+  flex: 1;
+}
+
+.search-box:focus-within {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.search-box input:focus-visible {
+  outline: 0;
+}
+
+.search-box input::placeholder {
+  color: #8a909a;
+}
+
+.search-box > span {
+  font: 400 11px var(--mono);
+  color: #8a909a;
+  white-space: nowrap;
+}
+
+.filter-chips {
+  scrollbar-width: none;
+  gap: 6px;
+  min-height: 38px;
+  margin: 0 -16px;
+  padding: 0 16px;
+  display: flex;
+  overflow: auto;
+}
+
+.filter-chips button {
+  height: 36px;
+  color: var(--category, #13161b);
+  font: 500 12px var(--mono);
+  background: #fff;
+  border: 1px solid #d9dce2;
+  border-radius: 18px;
+  flex-shrink: 0;
+  padding: 0 12px;
+}
+
+.filter-chips button[aria-pressed='true'] {
+  color: #fff;
+  background: #13161b;
+  border-color: #13161b;
+}
+
+.ledger-group-heading {
+  font: 500 11px/1.4 var(--mono);
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  justify-content: space-between;
+  padding: 8px 4px 6px;
+  display: flex;
+}
+
+.ledger-group {
+  margin-bottom: 7px;
+}
+
+.ledger-group .expense-rows {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 14px;
+  padding: 0 14px;
+}
+
+.ledger-utilities {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  display: flex;
+}
+
+.ledger-utilities .mobile-only {
+  gap: 14px;
+  display: flex;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--muted);
+  flex-direction: column;
+  gap: 8px;
+  padding: 48px 16px;
+  display: flex;
+}
+
+.empty-state h2 {
+  color: #13161b;
+  font-size: 18px;
+}
+
+.empty-state p {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.ledger-page .page-heading > strong {
+  white-space: nowrap;
+  padding-bottom: 4px;
+  font-size: 15px;
+}
+
+@media (width >= 900px) {
+  .ledger-page {
+    gap: 18px;
+    min-height: calc(100dvh - 72px);
+  }
+
+  .header-actions {
+    gap: 8px;
+    display: flex !important;
+  }
+
+  .search-box {
+    gap: 12px;
+    max-width: none;
+    height: 46px;
+  }
+
+  .search-box input {
+    font-size: 14px;
+  }
+
+  .filter-chips {
+    margin: 0;
+    padding: 0;
+  }
+
+  .ledger-stats > div {
+    padding: 14px 16px;
+  }
+
+  .ledger-table {
+    border: 1px solid var(--border);
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .ledger-columns {
+    grid-template-columns: 110px minmax(180px, 1fr) 150px 130px 150px;
+    align-items: center;
+    gap: 16px;
+    padding: 0 20px;
+    display: grid !important;
+  }
+
+  .ledger-columns > span:nth-last-child(-n + 2),
+  .ledger-columns > strong {
+    text-align: right;
+  }
+
+  .ledger-columns.eyebrow {
+    border-bottom: 1px solid var(--border);
+    background: #fafbfc;
+    height: 40px;
+  }
+
+  .ledger-group {
+    margin: 0;
+  }
+
+  .ledger-group-heading {
+    background: #f7f8fa;
+    border-bottom: 1px solid #eef0f3;
+    align-items: center;
+    height: 32px;
+    padding: 0 20px;
+  }
+
+  .ledger-row {
+    text-align: left;
+    width: 100%;
+    min-height: 48px;
+    font: 400 13px var(--mono);
+    background: #fff;
+    border: 0;
+    border-bottom: 1px solid #eef0f3;
+  }
+
+  .ledger-row:hover {
+    background: #f9fafb;
+  }
+
+  .ledger-note {
+    overflow-wrap: anywhere;
+    font:
+      400 15px Geist,
+      system-ui,
+      sans-serif;
+  }
+
+  .ledger-row strong {
+    font-size: 15px;
+  }
+
+  .ledger-stats small {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .ledger-utilities {
+    justify-content: flex-end;
+    margin-top: auto;
+    padding-top: 12px;
+  }
+
+  .ledger-group:last-child .ledger-row:last-child {
+    border-bottom: 0;
+  }
+
+  .ledger-table .empty-state {
+    padding: 60px 16px;
+  }
+}
+
+.ledger-row > strong,
+.ledger-row > span:last-child {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.expense-row > strong {
+  overflow-wrap: anywhere;
+  text-align: right;
+  max-width: 45%;
+}

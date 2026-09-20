@@ -9,13 +9,13 @@ export const CATEGORIES = [
 ] as const;
 export type Category = (typeof CATEGORIES)[number];
 export const CATEGORY_COLORS: Record<Category, string> = {
-  Food: '#285848',
-  Transportation: '#7c9d73',
-  Housing: '#bb8648',
-  Study: '#6f86a5',
-  Fun: '#a7738d',
-  Health: '#6d9997',
-  Other: '#8c877c',
+  Food: '#2448c9',
+  Transportation: '#c47512',
+  Housing: '#13161b',
+  Study: '#2f8f6b',
+  Fun: '#a2479b',
+  Health: '#2f8196',
+  Other: '#6b717c',
 };
 export function isCategory(value: unknown): value is Category {
   return CATEGORIES.some((category) => category === value);

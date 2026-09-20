@@ -8,6 +8,7 @@ import type { ExpenseValue } from '../domain/types';
 
 type Props = {
   today?: string;
+  initialDate?: string;
   selectedMonth: string;
   onAdd: (value: ExpenseValue) => void;
   onMonthChange: (month: string) => void;
@@ -19,10 +20,11 @@ export function ExpenseForm({
   onMonthChange,
   canAdd,
   today = todayLocal(),
+  initialDate = today,
 }: Props) {
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
-  const [date, setDate] = useState(today);
+  const [date, setDate] = useState(initialDate);
   const [description, setDescription] = useState('');
   const [errors, setErrors] = useState<ExpenseErrors>({});
   const [savedMonth, setSavedMonth] = useState<string | null>(null);

@@ -7,6 +7,7 @@ import { formatAmount, parseAmount } from '../domain/money';
 type Props = {
   budgetMinor: number | null;
   spentMinor: number;
+  reservedMinor?: number;
   month: string;
   today: string;
   onSave: (minor: number | null) => void;
@@ -16,6 +17,7 @@ type Props = {
 export function BudgetCard({
   budgetMinor,
   spentMinor,
+  reservedMinor = 0,
   month,
   today,
   onSave,
@@ -35,7 +37,7 @@ export function BudgetCard({
     setStipendInput(stipendDay === null ? '' : String(stipendDay));
   }, [stipendDay]);
   const stipend = stipendDay === null ? null : nextStipend(today, stipendDay);
-  const budget = computeBudget(budgetMinor, spentMinor, month, today);
+  const budget = computeBudget(budgetMinor, spentMinor, month, today, reservedMinor);
 
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -104,7 +106,7 @@ export function BudgetCard({
             />
           </div>
           <p className="budget-help">{Math.round(budget.pctUsed)}% used</p>
-          {budget.remainingMinor > 0 && budget.safePerDayMinor !== null && (
+          {budget.remainingMinor > reservedMinor && budget.safePerDayMinor !== null && (
             <div className="daily-budget">
               <p>
                 Safe to spend today: {CURRENCY} {formatAmount(budget.safePerDayMinor)}

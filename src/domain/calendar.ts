@@ -19,3 +19,13 @@ export function shiftMonth(month: string, delta: number): string {
   const index = Math.max(12, Math.min(119999, year * 12 + number - 1 + delta));
   return `${String(Math.floor(index / 12)).padStart(4, '0')}-${String((index % 12) + 1).padStart(2, '0')}`;
 }
+
+/** Move whole calendar days without DST effects and keep dates within storage bounds. */
+export function shiftDate(value: string, delta: number): string {
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(0);
+  date.setUTCFullYear(year, month - 1, day + delta);
+  if (date.getUTCFullYear() < 1) return '0001-01-01';
+  if (date.getUTCFullYear() > 9999) return '9999-12-31';
+  return date.toISOString().slice(0, 10);
+}
