@@ -26,6 +26,9 @@ export default function App() {
   const monthList = useMemo(() => expensesForMonth(expenses, selectedMonth), [expenses, selectedMonth]);
   const totals = useMemo(() => computeTotals(monthList), [monthList]);
 
+  // Drop stale filters after local deletions or incoming tab updates.
+  if (categoryFilter !== null && totals.byCategory[categoryFilter] === 0) setCategoryFilter(null);
+
   function changeMonth(month: string) {
     setSelectedMonth(month);
     setCategoryFilter(null);
@@ -57,6 +60,7 @@ export default function App() {
       <div className="dashboard-grid">
         <div className="ledger-column">
           <Totals totals={totals} count={monthList.length} filter={categoryFilter} onFilter={setCategoryFilter} />
+          {categoryFilter && <p className="filter-hint">Showing {categoryFilter} only — {monthList.filter(expense => expense.category === categoryFilter).length} of {monthList.length} expenses</p>}
           <ExpenseList categoryFilter={categoryFilter} expenses={monthList} month={selectedMonth} onDelete={expense => { remove(expense.id); setLastDeleted(expense); }} />
         </div>
         <aside className="entry-column" aria-label="Manage expenses">

@@ -44,3 +44,8 @@ it('navigates months using named buttons', () => {
   rerender(<MonthSwitcher month="9999-12" onChange={onChange} />);
   expect(screen.getByRole('button', { name: 'Next month' })).toBeDisabled();
 });
+
+it('explains when a standalone filtered list is empty', () => {
+  render(<ExpenseList expenses={[expense]} month="2026-09" categoryFilter="Health" onDelete={vi.fn()} />);
+  expect(screen.getByText('No Health expenses in September 2026.')).toBeInTheDocument();
+});

@@ -41,7 +41,7 @@ For a reproducible installation, use `npm ci`. `npm run test:watch` runs tests d
 - Synchronize same-origin tabs. Delayed events read the current stored snapshot rather than replaying stale content.
 - Show clear warnings for unavailable/full storage while keeping the current tab usable.
 - Warn about future dates without rejecting them; offer a month-switch link when an entry belongs elsewhere.
-- Filter the transaction list through a keyboard-accessible SVG donut or named legend. Filtering does not alter the month’s overall total or budget.
+- Filter the transaction list through a keyboard-accessible SVG donut or named legend. Slices are sorted by spending and inactive slices dim. Filtering shows the matching record count without altering the month’s overall total or budget, and resets when changing month or deleting the category’s last expense.
 - Set or clear a monthly budget. See spent, remaining, capped progress, and an explicit over-budget amount.
 - For the current month, show a daily allowance: remaining minor units divided by days left including today, rounded down, never below zero. The local date refreshes at midnight and when a suspended tab returns.
 - Run the isolated validation scenario from the footer. A native modal shows expected/actual results and restores keyboard focus when closed.

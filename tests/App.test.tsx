@@ -79,8 +79,8 @@ it('filters only the list, toggles off, clears explicitly, and resets on month c
   expect(screen.getByLabelText('Total spent')).toHaveTextContent('USD 30');
   await user.click(screen.getByRole('button', { name: 'Filter Food' }));
   expect(screen.getAllByRole('button', { name: 'Delete expense' })).toHaveLength(2);
-  await user.click(screen.getByRole('button', { name: 'Filter Health' }));
-  expect(screen.getByText('No Health expenses in September 2026.')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Filter Food' }));
+  expect(screen.getAllByRole('button', { name: 'Delete expense' })).toHaveLength(1);
   await user.click(screen.getByRole('button', { name: 'Clear filter' }));
   expect(screen.getAllByRole('button', { name: 'Delete expense' })).toHaveLength(2);
   await user.click(screen.getByRole('button', { name: 'Filter Food' }));
@@ -108,4 +108,21 @@ it('explains when Undo cannot restore into a refilled full ledger', async () => 
   fireEvent.click(screen.getByRole('button', { name: 'Add an expense' }));
   fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
   expect(screen.getByRole('alert')).toHaveTextContent('Could not restore');
+});
+
+it('clears a filter when its last expense is deleted and leaves undo unfiltered', async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  for (const [amount, category] of [['10', 'Food'], ['20', 'Transportation']]) {
+    await user.type(screen.getByLabelText('Amount (USD)'), amount);
+    await user.selectOptions(screen.getByLabelText('Category'), category);
+    await user.click(screen.getByRole('button', { name: 'Add an expense' }));
+  }
+  fireEvent.click(screen.getByRole('button', { name: 'Filter Food' }));
+  expect(screen.getByText('Showing Food only — 1 of 2 expenses')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Delete expense' }));
+  expect(screen.queryByRole('button', { name: 'Clear filter' })).not.toBeInTheDocument();
+  expect(screen.getByRole('row', { name: /Transportation.*USD 20/ })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+  expect(screen.getAllByRole('button', { name: 'Delete expense' })).toHaveLength(2);
 });
