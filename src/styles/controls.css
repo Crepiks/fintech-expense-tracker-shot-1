@@ -34,7 +34,7 @@
   display: flex;
 }
 
-.mobile-nav button[aria-current="page"] {
+.mobile-nav button[aria-current='page'] {
   color: #13161b;
 }
 
@@ -70,7 +70,7 @@
 
 .stats strong {
   font: 500 22px/1.25 var(--mono);
-  letter-spacing: -.04em;
+  letter-spacing: -0.04em;
   overflow-wrap: anywhere;
 }
 
@@ -220,7 +220,10 @@
   flex: 1;
   gap: 3px;
   min-width: 0;
-  font: 400 15px Geist, system-ui, sans-serif;
+  font:
+    400 15px Geist,
+    system-ui,
+    sans-serif;
   display: flex;
 }
 
@@ -233,7 +236,8 @@
   font-size: 14px;
 }
 
-.modal, .scenario-dialog {
+.modal,
+.scenario-dialog {
   border: 1px solid var(--border);
   color: #13161b;
   background: #fff;
@@ -245,7 +249,8 @@
   box-shadow: 0 24px 80px #13161b33;
 }
 
-.modal::backdrop, .scenario-dialog::backdrop {
+.modal::backdrop,
+.scenario-dialog::backdrop {
   backdrop-filter: blur(4px);
   background: #13161b55;
 }

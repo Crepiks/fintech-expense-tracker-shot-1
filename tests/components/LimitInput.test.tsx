@@ -33,7 +33,7 @@ it('saves with Enter and leaves other keys available for editing', () => {
   expect(onSave).toHaveBeenCalledExactlyOnceWith(1);
 });
 
-it.each(['', '   '])('clears a limit with empty input %j', value => {
+it.each(['', '   '])('clears a limit with empty input %j', (value) => {
   const onSave = vi.fn();
   render(<LimitInput label="Food limit" value={20000} onSave={onSave} />);
   const input = screen.getByRole('textbox', { name: 'Food limit' });

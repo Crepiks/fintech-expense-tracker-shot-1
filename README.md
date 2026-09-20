@@ -28,11 +28,34 @@ Open the address printed by Vite, normally `http://127.0.0.1:5173`. Check out th
 ```sh
 npm test              # Unit + component tests, enforcing 100% coverage per file
 npm run typecheck     # Strict TypeScript checks, including tests
+npm run lint          # Check JavaScript/TypeScript and React Hooks correctness
+npm run lint:fix      # Apply safe automatic lint fixes
+npm run format        # Format supported project files with Prettier
+npm run format:check  # Check formatting without changing files
 npm run build         # Production files in dist/
 npm run preview       # Serve dist/ locally
 ```
 
-`npm ci` uses the committed lockfile. `npm run test:watch` starts Vitest in watch mode. CI uses the pinned Node version and runs tests and the production build.
+`npm ci` uses the committed lockfile. `npm run test:watch` starts Vitest in watch mode. CI uses the pinned Node version and runs lint, formatting verification, tests, and the production build.
+
+### Contributor workflow
+
+[Oxlint](https://oxc.rs/docs/guide/usage/linter.html) checks JavaScript/TypeScript correctness and React Hooks, including dependency arrays; warnings fail the check. It supports this project's TypeScript 7 stack without adding an incompatible typescript-eslint peer dependency. Strict type checking remains in `npm run typecheck` and `npm run build`. [Prettier](https://prettier.io/docs/install) handles formatting separately, using two spaces, semicolons, single quotes in JavaScript/TypeScript, and a 100-column target. Both tools are exact development dependencies recorded in the npm lockfile.
+
+Before committing, run:
+
+```sh
+npm run lint:fix
+npm run format
+npm run lint
+npm run format:check
+npm test
+npm run build
+```
+
+Review automatic fixes before committing. Configure your editor to use the project's installed Prettier and Oxlint versions and committed configuration. Prettier formats source, tests, CSS, HTML, JSON, YAML, and Markdown. Generated output, dependencies, local environment files, and the npm-managed lockfile are ignored. Both tools leave `.agents/skills/` and `.claude/skills/` unchanged to preserve mirrored upstream sources. After intentionally editing skills, verify the copies with `diff -r .agents/skills .claude/skills`.
+
+The Oxlint configuration has two React rule exceptions scoped to three files: `refs` in `useExpenses.ts` for the initial storage notice, and `set-state-in-effect` in `BudgetCard.tsx` and `LimitInput.tsx` for synchronizing editable inputs with stored settings. These rules remain active elsewhere; Hooks ordering and dependency checks stay active in all three files. The recurring-charge effect depends on a stable action and reruns when the day, recurring rules, or record count changes. The app does not use React Compiler.
 
 ## Use the app
 

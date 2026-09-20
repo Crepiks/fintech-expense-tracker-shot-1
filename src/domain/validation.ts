@@ -4,8 +4,7 @@ import type { ExpenseDraft, ExpenseValue } from './types';
 
 export type ExpenseErrors = Partial<Record<'amount' | 'category' | 'date', string>>;
 type ValidationResult =
-  | { ok: true; value: ExpenseValue; futureDate: boolean }
-  | { ok: false; errors: ExpenseErrors };
+  { ok: true; value: ExpenseValue; futureDate: boolean } | { ok: false; errors: ExpenseErrors };
 
 /** Compare calendar parts explicitly, avoiding UTC parsing and Date rollover. */
 export function isValidDate(value: string): boolean {
@@ -13,8 +12,12 @@ export function isValidDate(value: string): boolean {
   const [year, month, day] = value.split('-').map(Number);
   const date = new Date(0);
   date.setFullYear(year, month - 1, day);
-  return year > 0 && date.getFullYear() === year
-    && date.getMonth() === month - 1 && date.getDate() === day;
+  return (
+    year > 0 &&
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day
+  );
 }
 
 export function validateExpense(draft: ExpenseDraft, today: string): ValidationResult {
@@ -27,7 +30,9 @@ export function validateExpense(draft: ExpenseDraft, today: string): ValidationR
   return {
     ok: true,
     value: {
-      amountMinor: amount.minor, category: draft.category, date: draft.date,
+      amountMinor: amount.minor,
+      category: draft.category,
+      date: draft.date,
       description: (draft.description ?? '').trim().slice(0, 200),
     },
     futureDate: draft.date > today,

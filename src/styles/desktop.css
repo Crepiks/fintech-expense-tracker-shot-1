@@ -22,7 +22,7 @@
   }
 
   .wordmark {
-    letter-spacing: -.02em;
+    letter-spacing: -0.02em;
     white-space: nowrap;
     align-items: center;
     gap: 10px;
@@ -51,7 +51,7 @@
     padding: 10px 12px;
   }
 
-  .desktop-nav button[aria-current="page"] {
+  .desktop-nav button[aria-current='page'] {
     color: #fff;
     background: #13161b;
   }
@@ -149,11 +149,14 @@
 
 @media (prefers-reduced-motion: no-preference) {
   button {
-    transition: background-color .12s, color .12s, box-shadow .12s;
+    transition:
+      background-color 0.12s,
+      color 0.12s,
+      box-shadow 0.12s;
   }
 
   .modal[open] {
-    animation: .15s ease-out modal-in;
+    animation: 0.15s ease-out modal-in;
   }
 
   @keyframes modal-in {

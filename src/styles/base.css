@@ -1,48 +1,48 @@
 @font-face {
   font-family: Geist;
-  src: url("/fonts/geist-400.ttf") format("truetype");
+  src: url('/fonts/geist-400.ttf') format('truetype');
   font-weight: 400;
   font-display: swap;
 }
 
 @font-face {
   font-family: Geist;
-  src: url("/fonts/geist-500.ttf") format("truetype");
+  src: url('/fonts/geist-500.ttf') format('truetype');
   font-weight: 500;
   font-display: swap;
 }
 
 @font-face {
   font-family: Geist;
-  src: url("/fonts/geist-600.ttf") format("truetype");
+  src: url('/fonts/geist-600.ttf') format('truetype');
   font-weight: 600;
   font-display: swap;
 }
 
 @font-face {
   font-family: Geist;
-  src: url("/fonts/geist-700.ttf") format("truetype");
+  src: url('/fonts/geist-700.ttf') format('truetype');
   font-weight: 700;
   font-display: swap;
 }
 
 @font-face {
   font-family: Geist Mono;
-  src: url("/fonts/geist-mono-400.ttf") format("truetype");
+  src: url('/fonts/geist-mono-400.ttf') format('truetype');
   font-weight: 400;
   font-display: swap;
 }
 
 @font-face {
   font-family: Geist Mono;
-  src: url("/fonts/geist-mono-500.ttf") format("truetype");
+  src: url('/fonts/geist-mono-500.ttf') format('truetype');
   font-weight: 500;
   font-display: swap;
 }
 
 @font-face {
   font-family: Geist Mono;
-  src: url("/fonts/geist-mono-600.ttf") format("truetype");
+  src: url('/fonts/geist-mono-600.ttf') format('truetype');
   font-weight: 600;
   font-display: swap;
 }
@@ -50,7 +50,7 @@
 :root {
   color: #13161b;
   font-synthesis: none;
-  --mono: "Geist Mono",monospace;
+  --mono: 'Geist Mono', monospace;
   --blue: #2448c9;
   --border: #e3e5ea;
   --muted: #5b616c;
@@ -68,7 +68,10 @@ body {
   margin: 0;
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font: inherit;
   color: inherit;
 }
@@ -79,18 +82,25 @@ button {
 
 button:disabled {
   cursor: not-allowed;
-  opacity: .45;
+  opacity: 0.45;
 }
 
 button {
   touch-action: manipulation;
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   min-width: 0;
 }
 
-button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 3px;
 }
@@ -100,15 +110,17 @@ button:focus:not(:focus-visible) {
 }
 
 button:hover {
-  filter: brightness(.98);
+  filter: brightness(0.98);
 }
 
-h1, h2, p {
+h1,
+h2,
+p {
   margin: 0;
 }
 
 h1 {
-  letter-spacing: -.03em;
+  letter-spacing: -0.03em;
   font-size: 26px;
   font-weight: 600;
   line-height: 1.2;
@@ -127,11 +139,14 @@ strong {
   font-weight: 500;
 }
 
-a, .text-button {
+a,
+.text-button {
   color: var(--blue);
 }
 
-.mono, code, kbd {
+.mono,
+code,
+kbd {
   font-family: var(--mono);
 }
 
@@ -153,12 +168,13 @@ a, .text-button {
 
 .eyebrow {
   font: 500 11px/1.4 var(--mono);
-  letter-spacing: .065em;
+  letter-spacing: 0.065em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
-.empty-note, .entry-help {
+.empty-note,
+.entry-help {
   font: 400 12px/1.7 var(--mono);
   color: var(--muted);
 }
@@ -168,7 +184,7 @@ a, .text-button {
 }
 
 .sr-only {
-  clip: rect(0,0,0,0);
+  clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
   width: 1px;

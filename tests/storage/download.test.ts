@@ -4,7 +4,9 @@ import { downloadCsv } from '../../src/storage/download';
 const BrowserBlob = Blob;
 const createObjectURL = vi.fn().mockReturnValue('blob:ledger-export');
 const revokeObjectURL = vi.fn();
-const makeBlob = vi.fn(function (parts: BlobPart[], options: BlobPropertyBag) { return new BrowserBlob(parts, options); });
+const makeBlob = vi.fn(function (parts: BlobPart[], options: BlobPropertyBag) {
+  return new BrowserBlob(parts, options);
+});
 let clicked: { href: string; download: string } | null;
 
 beforeEach(() => {
@@ -15,11 +17,17 @@ beforeEach(() => {
   clicked = null;
   vi.stubGlobal('URL', { createObjectURL, revokeObjectURL });
   vi.stubGlobal('Blob', makeBlob);
-  vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+  vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (
+    this: HTMLAnchorElement,
+  ) {
     clicked = { href: this.href, download: this.download };
   });
 });
-afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
 
 it('downloads the exact CSV as a local UTF-8 blob with the requested filename', () => {
   const csv = 'date,description\r\n2026-09-20,Lunch\r\n';

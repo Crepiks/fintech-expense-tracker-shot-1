@@ -93,7 +93,8 @@
     display: flex;
   }
 
-  .entry-footer > .primary-button, .entry-footer > .outline-button {
+  .entry-footer > .primary-button,
+  .entry-footer > .outline-button {
     min-height: 34px;
     padding: 6px 10px;
     font-size: 12px;

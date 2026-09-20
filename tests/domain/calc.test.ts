@@ -10,19 +10,31 @@ const expenses: Expense[] = [
 it('derives the 3000 total and exact category sums', () => {
   expect(computeTotals(expenses)).toEqual({
     totalMinor: 300000,
-    byCategory: { Food: 240000, Transportation: 60000, Housing: 0, Study: 0, Fun: 0, Health: 0, Other: 0 },
+    byCategory: {
+      Food: 240000,
+      Transportation: 60000,
+      Housing: 0,
+      Study: 0,
+      Fun: 0,
+      Health: 0,
+      Other: 0,
+    },
     invariantOk: true,
   });
 });
 it('derives 2100 after removing the 900 expense', () => {
-  expect(computeTotals(expenses.slice(0, 2))).toMatchObject({ totalMinor: 210000, byCategory: { Food: 150000, Transportation: 60000 }, invariantOk: true });
+  expect(computeTotals(expenses.slice(0, 2))).toMatchObject({
+    totalMinor: 210000,
+    byCategory: { Food: 150000, Transportation: 60000 },
+    invariantOk: true,
+  });
 });
 it('keeps other months out and orders by date then creation time without mutating input', () => {
   const list = [...expenses, { ...expenses[0], id: 'd', date: '2026-10-01' }];
   const result = expensesForMonth(list, '2026-09');
-  expect(result.map(item => item.id)).toEqual(['c', 'b', 'a']);
+  expect(result.map((item) => item.id)).toEqual(['c', 'b', 'a']);
   expect(computeTotals(result).totalMinor).toBe(300000);
-  expect(list.map(item => item.id)).toEqual(['a', 'b', 'c', 'd']);
+  expect(list.map((item) => item.id)).toEqual(['a', 'b', 'c', 'd']);
 });
 it('returns zero totals for an empty month', () => {
   expect(expensesForMonth(expenses, '2026-08')).toEqual([]);

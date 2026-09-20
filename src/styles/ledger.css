@@ -75,7 +75,7 @@
   padding: 0 12px;
 }
 
-.filter-chips button[aria-pressed="true"] {
+.filter-chips button[aria-pressed='true'] {
   color: #fff;
   background: #13161b;
   border-color: #13161b;
@@ -83,7 +83,7 @@
 
 .ledger-group-heading {
   font: 500 11px/1.4 var(--mono);
-  letter-spacing: .05em;
+  letter-spacing: 0.05em;
   color: var(--muted);
   justify-content: space-between;
   padding: 8px 4px 6px;
@@ -185,7 +185,8 @@
     display: grid !important;
   }
 
-  .ledger-columns > span:nth-last-child(-n+2), .ledger-columns > strong {
+  .ledger-columns > span:nth-last-child(-n + 2),
+  .ledger-columns > strong {
     text-align: right;
   }
 
@@ -223,7 +224,10 @@
 
   .ledger-note {
     overflow-wrap: anywhere;
-    font: 400 15px Geist, system-ui, sans-serif;
+    font:
+      400 15px Geist,
+      system-ui,
+      sans-serif;
   }
 
   .ledger-row strong {
@@ -251,7 +255,8 @@
   }
 }
 
-.ledger-row > strong, .ledger-row > span:last-child {
+.ledger-row > strong,
+.ledger-row > span:last-child {
   overflow-wrap: anywhere;
   min-width: 0;
 }

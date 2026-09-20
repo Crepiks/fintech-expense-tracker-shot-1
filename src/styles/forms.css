@@ -24,7 +24,8 @@
   line-height: 1.5;
 }
 
-.field-hint, .save-hint {
+.field-hint,
+.save-hint {
   color: var(--muted);
   font-size: 12px;
   line-height: 1.5;
@@ -34,20 +35,26 @@
   display: none;
 }
 
-.edit-form, .form-panel form {
+.edit-form,
+.form-panel form {
   flex-direction: column;
   gap: 14px;
   display: flex;
 }
 
-.edit-form label, .field {
+.edit-form label,
+.field {
   flex-direction: column;
   gap: 6px;
   font-size: 13px;
   display: flex;
 }
 
-.edit-form input, .edit-form select, .field input, .field select, .budget-panel input {
+.edit-form input,
+.edit-form select,
+.field input,
+.field select,
+.budget-panel input {
   height: 44px;
   font: 400 15px var(--mono);
   background: #fff;
@@ -86,7 +93,8 @@
   display: flex;
 }
 
-.budget-heading > span, .budget-help {
+.budget-heading > span,
+.budget-help {
   color: var(--muted);
   font-size: 12px;
 }
@@ -173,7 +181,8 @@ table {
   font-size: 13px;
 }
 
-th, td {
+th,
+td {
   text-align: left;
   border-bottom: 1px solid var(--border);
   padding: 9px;

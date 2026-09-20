@@ -21,14 +21,24 @@ export function expensesReducer(state: StoredData, action: ExpenseAction): Store
   switch (action.type) {
     case 'add':
     case 'restore':
-      if (state.expenses.length >= MAX_EXPENSES || state.expenses.some(item => item.id === action.expense.id)) return state;
+      if (
+        state.expenses.length >= MAX_EXPENSES ||
+        state.expenses.some((item) => item.id === action.expense.id)
+      )
+        return state;
       return { ...state, expenses: [...state.expenses, action.expense] };
     case 'update':
-      if (!state.expenses.some(item => item.id === action.expense.id)) return state;
-      return { ...state, expenses: state.expenses.map(item => item.id === action.expense.id ? action.expense : item) };
+      if (!state.expenses.some((item) => item.id === action.expense.id)) return state;
+      return {
+        ...state,
+        expenses: state.expenses.map((item) =>
+          item.id === action.expense.id ? action.expense : item,
+        ),
+      };
     case 'importExpenses': {
-      if (!action.expenses.length || state.expenses.length + action.expenses.length > MAX_EXPENSES) return state;
-      const ids = new Set(state.expenses.map(item => item.id));
+      if (!action.expenses.length || state.expenses.length + action.expenses.length > MAX_EXPENSES)
+        return state;
+      const ids = new Set(state.expenses.map((item) => item.id));
       for (const item of action.expenses) {
         if (ids.has(item.id)) return state;
         ids.add(item.id);
@@ -36,7 +46,7 @@ export function expensesReducer(state: StoredData, action: ExpenseAction): Store
       return { ...state, expenses: [...state.expenses, ...action.expenses] };
     }
     case 'remove':
-      return { ...state, expenses: state.expenses.filter(item => item.id !== action.id) };
+      return { ...state, expenses: state.expenses.filter((item) => item.id !== action.id) };
     case 'replaceAll':
       return action.data;
     case 'setStipendDay':
@@ -51,11 +61,18 @@ export function expensesReducer(state: StoredData, action: ExpenseAction): Store
     }
     case 'addRecurring': {
       const recurring = state.settings.recurring ?? [];
-      if (recurring.length >= MAX_EXPENSES || recurring.some(item => item.id === action.cost.id)) return state;
+      if (recurring.length >= MAX_EXPENSES || recurring.some((item) => item.id === action.cost.id))
+        return state;
       return { ...state, settings: { ...state.settings, recurring: [...recurring, action.cost] } };
     }
     case 'removeRecurring':
-      return { ...state, settings: { ...state.settings, recurring: (state.settings.recurring ?? []).filter(item => item.id !== action.id) } };
+      return {
+        ...state,
+        settings: {
+          ...state.settings,
+          recurring: (state.settings.recurring ?? []).filter((item) => item.id !== action.id),
+        },
+      };
     case 'applyRecurring':
       return applyRecurring(state, action.today);
   }

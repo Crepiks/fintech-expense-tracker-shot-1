@@ -1,0 +1,38 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "react", "oxc"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "error",
+    "eslint/no-console": "error"
+  },
+  "env": {
+    "browser": true
+  },
+  "overrides": [
+    {
+      "files": ["vite.config.ts"],
+      "env": { "node": true }
+    },
+    {
+      "files": ["src/state/useExpenses.ts"],
+      "rules": { "react/refs": "off" }
+    },
+    {
+      "files": ["src/components/BudgetCard.tsx", "src/components/LimitInput.tsx"],
+      "rules": { "react/set-state-in-effect": "off" }
+    }
+  ],
+  "ignorePatterns": [
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    "coverage/**",
+    ".superpowers/**",
+    ".agents/skills/**",
+    ".claude/skills/**"
+  ]
+}

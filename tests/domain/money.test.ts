@@ -3,16 +3,24 @@ import { formatAmount, parseAmount } from '../../src/domain/money';
 
 describe('parseAmount', () => {
   it.each([
-    ['1500', 150000], ['1 500', 150000], ['1,500', 150000],
-    ['1500,50', 150050], ['1500.5', 150050], [' 1\u00a0500.01 ', 150001],
-    ['0.01', 1], ['0001.09', 109], ['1,234,567.89', 123456789],
+    ['1500', 150000],
+    ['1 500', 150000],
+    ['1,500', 150000],
+    ['1500,50', 150050],
+    ['1500.5', 150050],
+    [' 1\u00a0500.01 ', 150001],
+    ['0.01', 1],
+    ['0001.09', 109],
+    ['1,234,567.89', 123456789],
     ['999999999.99', 99999999999],
   ])('parses %s to exact integer minor units', (input, minor) => {
     expect(parseAmount(input)).toEqual({ ok: true, minor });
   });
   it.each([
-    ['', 'Enter an amount.'], [' \t\n ', 'Enter an amount.'],
-    ['0', 'Amount must be greater than 0.'], ['0.00', 'Amount must be greater than 0.'],
+    ['', 'Enter an amount.'],
+    [' \t\n ', 'Enter an amount.'],
+    ['0', 'Amount must be greater than 0.'],
+    ['0.00', 'Amount must be greater than 0.'],
     ['-5', 'Amount must be greater than 0.'],
     ['abc', 'Use digits only, e.g. 1500 or 1500.50.'],
     ['1e5', 'Use digits only, e.g. 1500 or 1500.50.'],
@@ -27,8 +35,12 @@ describe('parseAmount', () => {
   });
 });
 
-it.each([[0, '0'], [150000, '1,500'], [150050, '1,500.5'], [1, '0.01'], [-125, '-1.25']])(
-  'formats %i minor units for display', (minor, expected) => {
-    expect(formatAmount(minor)).toBe(expected);
-  },
-);
+it.each([
+  [0, '0'],
+  [150000, '1,500'],
+  [150050, '1,500.5'],
+  [1, '0.01'],
+  [-125, '-1.25'],
+])('formats %i minor units for display', (minor, expected) => {
+  expect(formatAmount(minor)).toBe(expected);
+});

@@ -1,5 +1,13 @@
 # Verification evidence
 
+## Lint integration after the redesign — 20 September 2026
+
+PR #10 integrates Oxlint and Prettier with redesigned trunk revision `c067962`. On Node.js 24.21.0, `npm run lint`, `npm run lint:fix`, `npm run format:check`, and `npm run build` pass. The complete suite passes **612 tests in 44 files**, with **100% lines (970/970), branches (920/920), statements (1,110/1,110), and functions (304/304)**, enforced per application file.
+
+The new regression test failed before stabilizing the recurring action and passed afterward. Existing recurrence tests still verify that freeing capacity immediately applies a waiting charge. Other source/test/HTML changes (95 files) are verified as exactly Prettier output of trunk; application behavior and imported assets are preserved. The obsolete donut lint exception is removed, and editable category limits use the existing scoped input-synchronization exception. The README lists the remaining exceptions and contributor commands.
+
+The merged redesign baseline passed all 611 tests with 100% coverage before these changes; no pre-existing test or build failures were found. Shared skill directories remain identical. No additional browser or deployment verification was performed for the lint integration; the redesign's browser evidence below describes its earlier validation.
+
 ## Mobile-first redesign — 20 September 2026
 
 Implemented from the supplied eight-page “Pocket Ledger — Redesign Directions” PDF and the eight desktop/mobile HTML exports. The source files remain external design references; screenshots below show the working application. Work is on `feat/mobile-first-redesign`, based on `origin/trunk` revision `5aad69f`.
@@ -41,12 +49,12 @@ A separate production smoke test used `npm run preview -- --port 4185` and fresh
 
 ## Screenshots and design comparison
 
-| Screen | Desktop | Mobile | Comparison |
-| --- | --- | --- | --- |
-| Calendar | [Desktop](screenshots/desktop.png) | [Mobile](screenshots/mobile.png) | Geist typography, blue spending intensity, fixed-cost hatch, selected-day card, desktop category sidebar, mobile bottom navigation. |
-| Ledger | [Desktop](screenshots/ledger.png) | [Mobile](screenshots/ledger-mobile.png) | Search and filter chips, day grouping, desktop summary cards/running balance, simplified mobile rows. |
-| Budget | [Desktop](screenshots/budget.png) | [Mobile](screenshots/budget-mobile.png) | Cumulative chart, black forecast panel, per-category limits and pace markers, fixed-cost list. |
-| Quick entry | [Command bar](screenshots/command.png) | [Add](screenshots/add-mobile.png) | Editable note, live parsed preview, category/date tokens, real recent entries, full-screen mobile form. |
+| Screen      | Desktop                                | Mobile                                  | Comparison                                                                                                                          |
+| ----------- | -------------------------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Calendar    | [Desktop](screenshots/desktop.png)     | [Mobile](screenshots/mobile.png)        | Geist typography, blue spending intensity, fixed-cost hatch, selected-day card, desktop category sidebar, mobile bottom navigation. |
+| Ledger      | [Desktop](screenshots/ledger.png)      | [Mobile](screenshots/ledger-mobile.png) | Search and filter chips, day grouping, desktop summary cards/running balance, simplified mobile rows.                               |
+| Budget      | [Desktop](screenshots/budget.png)      | [Mobile](screenshots/budget-mobile.png) | Cumulative chart, black forecast panel, per-category limits and pace markers, fixed-cost list.                                      |
+| Quick entry | [Command bar](screenshots/command.png) | [Add](screenshots/add-mobile.png)       | Editable note, live parsed preview, category/date tokens, real recent entries, full-screen mobile form.                             |
 
 [Validation scenario](screenshots/validation.png) also uses the redesigned UI.
 

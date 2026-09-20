@@ -18,7 +18,8 @@
     font-size: 15px;
   }
 
-  .budget-top, .budget-bottom {
+  .budget-top,
+  .budget-bottom {
     grid-template-columns: minmax(0, 1fr) 320px;
     gap: 16px;
     display: grid;
@@ -86,7 +87,10 @@
 
   .forecast-copy {
     color: #d5d9e0;
-    font: 400 14px / 1.6 Geist, system-ui, sans-serif;
+    font:
+      400 14px / 1.6 Geist,
+      system-ui,
+      sans-serif;
     display: block;
   }
 
@@ -152,7 +156,7 @@
     font-size: 10px;
   }
 
-  .budget-column-heading > span:nth-child(n+3) {
+  .budget-column-heading > span:nth-child(n + 3) {
     text-align: right;
   }
 
@@ -215,7 +219,8 @@
 }
 
 @media (width >= 900px) and (width <= 1150px) {
-  .budget-top, .budget-bottom {
+  .budget-top,
+  .budget-bottom {
     grid-template-columns: minmax(0, 1fr) 270px;
   }
 

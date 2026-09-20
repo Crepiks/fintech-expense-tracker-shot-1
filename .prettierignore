@@ -1,0 +1,18 @@
+# Dependencies, generated output, and local scratch files.
+node_modules/
+dist/
+build/
+coverage/
+.superpowers/
+venv/
+.venv/
+__pycache__/
+.env
+.env.*
+
+# npm owns lockfile formatting.
+package-lock.json
+
+# Mirrored skills include verbatim upstream sources; preserve both copies.
+.agents/skills/
+.claude/skills/
