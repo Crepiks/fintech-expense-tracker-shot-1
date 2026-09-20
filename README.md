@@ -120,7 +120,7 @@ Quick entry / forms / CSV → validation → reducer → useExpenses → localSt
                               Calendar · Ledger · Budget forecasts
 ```
 
-- `src/domain/`: pure money/date validation, commands, search, CSV, recurrence, totals and forecasts.
+- `src/domain/`: pure money/date validation, commands, search, CSV, recurrence, totals and forecasts. The deterministic demo-data generator uses stable IDs to merge sample expenses without replacing existing records or configured settings.
 - `src/storage/`: version-1 schema recovery, persistence, cross-tab events, and local CSV downloads.
 - `src/state/`: reducer, persistence hook, and local-day clock (refreshes at midnight and on returning to the tab).
 - `src/components/`: responsive views, entry/editor/import dialogs, reusable display components. `App.tsx` coordinates navigation and actions.
