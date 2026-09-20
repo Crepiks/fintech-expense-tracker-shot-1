@@ -21,6 +21,7 @@ import { Modal } from './components/Modal';
 import { UndoToast } from './components/UndoToast';
 import { JudgeMode } from './components/JudgeMode';
 import { BudgetCard } from './components/BudgetCard';
+import { DemoDataCard } from './components/DemoDataCard';
 
 function newExpense(value: ExpenseValue): Expense {
   return { ...value, id: crypto.randomUUID?.() ?? Date.now().toString(36) + Math.random().toString(36).slice(2), createdAt: Date.now() };
@@ -126,7 +127,13 @@ export default function App() {
       const importedAt = Date.now();
       store.importExpenses(values.map((value, index) => ({ ...newExpense(value), createdAt: importedAt + index }))); setImporting(false); setNotice(`Imported ${values.length} expenses.`);
     }} onClose={() => setImporting(false)} />}
-    {showSettings && <Modal title="Settings" onClose={() => setShowSettings(false)}><div className="dialog-heading"><h2>Settings</h2><button className="text-button" onClick={() => setShowSettings(false)}>close</button></div><p className="empty-note">Your data stays in this browser. No account or bank connection.</p><BudgetCard budgetMinor={settings.monthlyBudgetMinor} spentMinor={spent} reservedMinor={reservedMinor} month={selectedMonth} today={today} onSave={store.setBudget} stipendDay={settings.stipendDay} onStipendSave={store.setStipendDay} /><JudgeMode /></Modal>}
+    {showSettings && <Modal title="Settings" onClose={() => setShowSettings(false)}>
+      <div className="dialog-heading"><h2>Settings</h2><button className="text-button" onClick={() => setShowSettings(false)}>close</button></div>
+      <p className="empty-note">Your data stays in this browser. No account or bank connection.</p>
+      <DemoDataCard month={selectedMonth} onLoad={() => store.loadDemo(selectedMonth, today)} storageNotice={storageNotice} />
+      <BudgetCard budgetMinor={settings.monthlyBudgetMinor} spentMinor={spent} reservedMinor={reservedMinor} month={selectedMonth} today={today} onSave={store.setBudget} stipendDay={settings.stipendDay} onStipendSave={store.setStipendDay} />
+      <JudgeMode />
+    </Modal>}
     {lastDeleted && <UndoToast expense={lastDeleted} onUndo={undoDelete} onExpire={clearDeleted} />}
   </div>;
 }

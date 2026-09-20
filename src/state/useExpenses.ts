@@ -3,6 +3,7 @@ import type { Category } from '../domain/categories';
 import type { Expense, RecurringCost } from '../domain/types';
 import { load, save, subscribe } from '../storage/storage';
 import { expensesReducer } from './reducer';
+import { prepareDemoData, type DemoResult } from '../domain/demo';
 
 export function useExpenses() {
   const initialNotice = useRef('');
@@ -39,6 +40,11 @@ export function useExpenses() {
     add: (expense: Expense) => dispatch({ type: 'add', expense }),
     update: (expense: Expense) => dispatch({ type: 'update', expense }),
     importExpenses: (expenses: Expense[]) => dispatch({ type: 'importExpenses', expenses }),
+    loadDemo: (month: string, today: string): DemoResult => {
+      const { added, error } = prepareDemoData(state, month, today);
+      dispatch({ type: 'loadDemo', month, today });
+      return { added, error };
+    },
     remove: (id: string) => dispatch({ type: 'remove', id }),
     restore: (expense: Expense) => dispatch({ type: 'restore', expense }),
     setBudget: (minor: number | null) => dispatch({ type: 'setBudget', minor }),

@@ -42,6 +42,15 @@ The calendar opens on the current local month. Choose a day to inspect its expen
 
 Month, week and year views are available on desktop. Their arrows move one month, seven days, or one year respectively. Choose a month in the year view to return to its calendar. Months are isolated across the calendar, ledger and budget.
 
+### Explore with demo data
+
+Open **Settings → Add demo data** (on mobile, open **Budget → settings**). The blue demo card adds a realistic mix of groceries, cafés, transport, study, health, entertainment and fixed bills to the selected month and two preceding months. The calendar, ledger, category breakdowns and budget chart update immediately. New storage still starts empty; examples are added only when requested.
+
+- Purchases stop at today's local date; future entries are planned fixed bills. Short months clamp month-end examples to their last day. Each full past month has 40 expenses, including quiet days and varied daily spending.
+- Existing records and configured settings are preserved. Only an empty tracker without any budget, stipend, category limits or recurring rules receives the example $1,800 monthly budget and seven category limits. Fixed demo bills are ordinary editable expenses, not new recurring rules.
+- Stable IDs prevent duplicates across repeated clicks, reloads and overlapping month ranges. Edited examples stay edited, even if their dates change. Clicking again can restore deleted examples and add newly elapsed purchases; it does not reset the tracker.
+- Results appear inside Settings. Data uses the same localStorage persistence and cross-tab synchronization as other entries. If saving fails, the warning remains visible in the modal; click **Add demo data** again to retry saving without duplicating entries. A batch that would exceed 10,000 records is rejected in full.
+
 ### Quick entry and commands
 
 Tap **+** on mobile or the command bar on desktop. **⌘K / Ctrl+K** opens or closes quick entry. The live preview shows what will be saved. **Enter** saves; **Shift+Enter** or **add & keep open** saves and keeps the bar ready. **Escape** cancels. A labelled manual form is available under **prefer a form?**.
@@ -114,6 +123,7 @@ Set the overall monthly limit and optional category limits; desktop inputs save 
 
 ```text
 Quick entry / forms / CSV → validation → reducer → useExpenses → localStorage
+Demo data → deterministic sample merge ────┘
                                                ↓
                                   one month of expense records
                                                ↓
