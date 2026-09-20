@@ -5,7 +5,13 @@ import { daysInMonth } from './insights';
 import type { Expense, StoredData } from './types';
 
 export type DemoResult = { added: number; error: string };
-type Sample = [day: number, description: string, amountMinor: number, category: Category, fixed?: boolean];
+type Sample = [
+  day: number,
+  description: string,
+  amountMinor: number,
+  category: Category,
+  fixed?: boolean,
+];
 
 // Keep this version's ordering stable: the index is part of each persistent demo ID.
 const SAMPLES: Sample[] = [
@@ -53,37 +59,68 @@ const SAMPLES: Sample[] = [
 
 function monthExpenses(month: string, today: string): Expense[] {
   const lastDay = daysInMonth(month);
-  const variation = 100 + (Number(month.slice(5)) % 3 - 1) * 4;
+  const variation = 100 + ((Number(month.slice(5)) % 3) - 1) * 4;
   return SAMPLES.map(([day, description, amountMinor, category, fixed = false], index) => {
     const date = `${month}-${String(Math.min(day, lastDay)).padStart(2, '0')}`;
     return {
-      id: `demo:v1:${month}:${index}`, date, description, category, fixed,
-      amountMinor: fixed ? amountMinor : Math.round(amountMinor * variation / 100),
+      id: `demo:v1:${month}:${index}`,
+      date,
+      description,
+      category,
+      fixed,
+      amountMinor: fixed ? amountMinor : Math.round((amountMinor * variation) / 100),
       createdAt: Math.max(0, Date.parse(`${date}T12:00:00Z`)) + index,
     };
-  }).filter(expense => expense.fixed || expense.date <= today);
+  }).filter((expense) => expense.fixed || expense.date <= today);
 }
 
 /** Append a deterministic sample set for validated app dates, preserving existing IDs and settings. */
-export function prepareDemoData(state: StoredData, month: string, today: string): DemoResult & { data: StoredData } {
+export function prepareDemoData(
+  state: StoredData,
+  month: string,
+  today: string,
+): DemoResult & { data: StoredData } {
   const months = new Set([shiftMonth(month, -2), shiftMonth(month, -1), month]);
-  const ids = new Set(state.expenses.map(expense => expense.id));
-  const additions = [...months].flatMap(value => monthExpenses(value, today)).filter(expense => !ids.has(expense.id));
+  const ids = new Set(state.expenses.map((expense) => expense.id));
+  const additions = [...months]
+    .flatMap((value) => monthExpenses(value, today))
+    .filter((expense) => !ids.has(expense.id));
   if (!additions.length) return { data: state, added: 0, error: '' };
   if (state.expenses.length + additions.length > MAX_EXPENSES) {
-    return { data: state, added: 0, error: `Demo data needs room for ${additions.length} expenses. The 10,000-record limit would be exceeded. No data was changed.` };
+    return {
+      data: state,
+      added: 0,
+      error: `Demo data needs room for ${additions.length} expenses. The 10,000-record limit would be exceeded. No data was changed.`,
+    };
   }
   const { settings } = state;
-  const pristine = state.expenses.length === 0 && settings.monthlyBudgetMinor === null && settings.stipendDay === null
-    && Object.keys(settings.categoryLimits ?? {}).length === 0 && (settings.recurring ?? []).length === 0;
+  const pristine =
+    state.expenses.length === 0 &&
+    settings.monthlyBudgetMinor === null &&
+    settings.stipendDay === null &&
+    Object.keys(settings.categoryLimits ?? {}).length === 0 &&
+    (settings.recurring ?? []).length === 0;
   return {
-    added: additions.length, error: '',
+    added: additions.length,
+    error: '',
     data: {
-      ...state, expenses: [...state.expenses, ...additions],
-      settings: pristine ? {
-        ...settings, monthlyBudgetMinor: 180000,
-        categoryLimits: { Food: 40000, Transportation: 10000, Housing: 85000, Study: 10000, Fun: 12000, Health: 10000, Other: 8000 },
-      } : settings,
+      ...state,
+      expenses: [...state.expenses, ...additions],
+      settings: pristine
+        ? {
+            ...settings,
+            monthlyBudgetMinor: 180000,
+            categoryLimits: {
+              Food: 40000,
+              Transportation: 10000,
+              Housing: 85000,
+              Study: 10000,
+              Fun: 12000,
+              Health: 10000,
+              Other: 8000,
+            },
+          }
+        : settings,
     },
   };
 }

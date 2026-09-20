@@ -3,7 +3,19 @@ import { expect, it, vi } from 'vitest';
 import App from '../src/App';
 import { STORAGE_KEY } from '../src/storage/storage';
 import { data, expense } from './fixtures';
-import { addNote, appTestLifecycle, cancelDialog, closeSettings, editExpense, navigate, openEntry, openSettings, receiveRemote, seed, stored } from './appHelpers';
+import {
+  addNote,
+  appTestLifecycle,
+  cancelDialog,
+  closeSettings,
+  editExpense,
+  navigate,
+  openEntry,
+  openSettings,
+  receiveRemote,
+  seed,
+  stored,
+} from './appHelpers';
 
 appTestLifecycle();
 
@@ -11,7 +23,10 @@ it('renders the application landmark and opens the current calendar', () => {
   render(<App />);
   expect(screen.getByRole('main', { name: 'Pocket Ledger' })).toBeInTheDocument();
   expect(screen.getByRole('heading', { name: 'September 2026' })).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'September 19, 2026, $0.00' })).toHaveAttribute('aria-current', 'date');
+  expect(screen.getByRole('button', { name: 'September 19, 2026, $0.00' })).toHaveAttribute(
+    'aria-current',
+    'date',
+  );
 });
 
 it('adds the required scenario and persists the deletion after remounting', () => {
@@ -43,9 +58,14 @@ it('keeps another month isolated and follows the saved-month hint from the manua
   cancelDialog('New entry');
   expect(screen.getByLabelText('Total spent')).toHaveTextContent('$10.00');
   fireEvent.click(screen.getByRole('button', { name: 'Previous month' }));
-  expect(screen.getByRole('button', { name: 'September 19, 2026, $0.00' })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('button', { name: 'September 19, 2026, $0.00' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
   navigate('ledger');
-  expect(screen.getByRole('heading', { name: 'No expenses in September 2026 yet.' })).toBeInTheDocument();
+  expect(
+    screen.getByRole('heading', { name: 'No expenses in September 2026 yet.' }),
+  ).toBeInTheDocument();
 });
 
 it('shows the storage recovery notice', () => {
@@ -83,7 +103,10 @@ it('filters the ledger, toggles off, clears explicitly, and resets when changing
   expect(screen.getAllByRole('button', { name: 'Edit bus' })).toHaveLength(2);
   fireEvent.click(screen.getByRole('button', { name: 'Filter Food' }));
   fireEvent.click(screen.getByRole('button', { name: 'Next month' }));
-  expect(screen.getByRole('button', { name: 'Clear filter' })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('button', { name: 'Clear filter' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
   fireEvent.click(screen.getByRole('button', { name: 'Previous month' }));
   expect(screen.getAllByRole('button', { name: /^Edit (lunch|bus)$/ })).toHaveLength(4);
   navigate('calendar');
@@ -116,15 +139,24 @@ it('opens the live settings dialog through the budget footer', () => {
 });
 
 it('explains when Undo cannot restore into a refilled full ledger', () => {
-  seed({ ...data, expenses: Array.from({ length: 10000 }, (_, index) => ({ ...expense, id: String(index), date: index === 0 ? '2026-09-19' : '2026-08-01' })) });
+  seed({
+    ...data,
+    expenses: Array.from({ length: 10000 }, (_, index) => ({
+      ...expense,
+      id: String(index),
+      date: index === 0 ? '2026-09-19' : '2026-08-01',
+    })),
+  });
   render(<App />);
   editExpense('Edit Food expense');
   fireEvent.click(screen.getByRole('button', { name: 'Delete expense' }));
   addNote('10 refill #food');
   fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
-  expect(screen.getByText('Could not restore: the 10,000-record limit was reached.')).toBeInTheDocument();
+  expect(
+    screen.getByText('Could not restore: the 10,000-record limit was reached.'),
+  ).toBeInTheDocument();
   expect(stored().expenses).toHaveLength(10000);
-  expect(stored().expenses.some(item => item.id === '0')).toBe(false);
+  expect(stored().expenses.some((item) => item.id === '0')).toBe(false);
 });
 
 it('clears a category when its final matching expense is deleted and keeps undo unfiltered', () => {
@@ -135,7 +167,10 @@ it('clears a category when its final matching expense is deleted and keeps undo 
   fireEvent.click(screen.getByRole('button', { name: 'Filter Food' }));
   editExpense('Edit lunch');
   fireEvent.click(screen.getByRole('button', { name: 'Delete expense' }));
-  expect(screen.getByRole('button', { name: 'Clear filter' })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('button', { name: 'Clear filter' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
   expect(screen.getAllByRole('button', { name: 'Edit bus' })).toHaveLength(2);
   fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
   expect(screen.getAllByRole('button', { name: /^Edit (lunch|bus)$/ })).toHaveLength(4);
@@ -184,14 +219,22 @@ it('edits a stored expense and preserves its identity across reloads', () => {
   navigate('ledger');
   editExpense('Edit Food expense');
   fireEvent.change(screen.getByLabelText('Amount (USD)'), { target: { value: '12.50' } });
-  fireEvent.change(screen.getByLabelText('Description (optional)'), { target: { value: 'Edited lunch' } });
+  fireEvent.change(screen.getByLabelText('Description (optional)'), {
+    target: { value: 'Edited lunch' },
+  });
   fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
   expect(screen.getByText('Expense updated.')).toBeInTheDocument();
-  expect(stored().expenses[0]).toMatchObject({ id: 'one', amountMinor: 1250, description: 'Edited lunch' });
+  expect(stored().expenses[0]).toMatchObject({
+    id: 'one',
+    amountMinor: 1250,
+    description: 'Edited lunch',
+  });
   unmount();
   render(<App />);
   navigate('ledger');
-  expect(screen.getAllByRole('button', { name: 'Edit Edited lunch' })[0]).toHaveTextContent('$12.50');
+  expect(screen.getAllByRole('button', { name: 'Edit Edited lunch' })[0]).toHaveTextContent(
+    '$12.50',
+  );
 });
 
 it('refuses to recreate an edited expense that another tab has deleted', () => {
@@ -209,8 +252,14 @@ it('refuses to recreate an edited expense that another tab has deleted', () => {
 it('opens entry for a selected calendar day and dismisses a saved notice', () => {
   render(<App />);
   fireEvent.click(screen.getByRole('button', { name: 'September 8, 2026, $0.00' }));
-  fireEvent.click(within(screen.getByRole('region', { name: 'Selected day' })).getByRole('button', { name: /add to this day/ }));
-  fireEvent.change(screen.getByLabelText('TYPE IT LIKE A NOTE'), { target: { value: '8 coffee #food' } });
+  fireEvent.click(
+    within(screen.getByRole('region', { name: 'Selected day' })).getByRole('button', {
+      name: /add to this day/,
+    }),
+  );
+  fireEvent.change(screen.getByLabelText('TYPE IT LIKE A NOTE'), {
+    target: { value: '8 coffee #food' },
+  });
   fireEvent.click(screen.getByRole('button', { name: /^add$/ }));
   expect(stored().expenses[0].date).toBe('2026-09-08');
   expect(screen.getByText('Added $8.00 to September 2026.')).toBeInTheDocument();

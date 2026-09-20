@@ -67,7 +67,8 @@
   display: none;
 }
 
-.calendar-weekdays, .calendar-grid {
+.calendar-weekdays,
+.calendar-grid {
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 5px;
   display: grid;
@@ -98,7 +99,7 @@
   display: flex;
 }
 
-.calendar-day[aria-pressed="true"] {
+.calendar-day[aria-pressed='true'] {
   outline-offset: 2px;
   outline: 2px solid #13161b !important;
 }
@@ -160,7 +161,9 @@
   border: 1px dashed #d9dce2;
 }
 
-.week-total, .calendar-legend, .week-day-label {
+.week-total,
+.calendar-legend,
+.week-day-label {
   display: none;
 }
 
@@ -186,7 +189,7 @@
 
 .day-summary h2 {
   font: 500 28px var(--mono);
-  letter-spacing: -.04em;
+  letter-spacing: -0.04em;
   margin-top: 5px;
 }
 

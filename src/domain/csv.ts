@@ -11,11 +11,21 @@ function quote(value: string): string {
 
 /** Escape formula prefixes and leading apostrophes so our importer can undo it. */
 export function exportExpensesCsv(expenses: Expense[]): string {
-  const rows = expenses.map(expense => {
+  const rows = expenses.map((expense) => {
     const description = expense.description ?? '';
-    const safeNote = formulaPrefix.test(description) || description.startsWith("'") ? `'${description}` : description;
-    return [expense.date, safeNote, expense.category, (expense.amountMinor / 100).toFixed(2),
-      'fixed' in expense && expense.fixed ? 'true' : 'false'].map(quote).join(',');
+    const safeNote =
+      formulaPrefix.test(description) || description.startsWith("'")
+        ? `'${description}`
+        : description;
+    return [
+      expense.date,
+      safeNote,
+      expense.category,
+      (expense.amountMinor / 100).toFixed(2),
+      'fixed' in expense && expense.fixed ? 'true' : 'false',
+    ]
+      .map(quote)
+      .join(',');
   });
   return [COLUMNS.join(','), ...rows].join('\r\n') + '\r\n';
 }
@@ -30,15 +40,19 @@ function readRows(text: string): string[][] | null {
   for (let index = 0; index < text.length; index += 1) {
     const char = text[index];
     if (quoted) {
-      if (char === '"' && text[index + 1] === '"') { field += '"'; index += 1; }
-      else if (char === '"') { quoted = false; closedQuote = true; }
-      else field += char;
+      if (char === '"' && text[index + 1] === '"') {
+        field += '"';
+        index += 1;
+      } else if (char === '"') {
+        quoted = false;
+        closedQuote = true;
+      } else field += char;
     } else if (char === ',' || char === '\n' || char === '\r') {
       row.push(field);
       field = '';
       closedQuote = false;
       if (char !== ',') {
-        if (row.some(value => value !== '')) rows.push(row);
+        if (row.some((value) => value !== '')) rows.push(row);
         row = [];
         if (char === '\r' && text[index + 1] === '\n') index += 1;
       }
@@ -50,7 +64,7 @@ function readRows(text: string): string[][] | null {
   }
   if (quoted) return null;
   row.push(field);
-  if (row.some(value => value !== '')) rows.push(row);
+  if (row.some((value) => value !== '')) rows.push(row);
   return rows;
 }
 
@@ -59,8 +73,11 @@ export function parseExpensesCsv(text: string, today: string): CsvResult {
   const rows = readRows(text.replace(/^\uFEFF/, ''));
   if (!rows) return { ok: false, error: 'CSV has invalid quotation marks.' };
   const header = rows.shift();
-  if (!header || (header.length !== 4 && header.length !== 5)
-    || header.some((column, index) => column.trim().toLowerCase() !== COLUMNS[index])) {
+  if (
+    !header ||
+    (header.length !== 4 && header.length !== 5) ||
+    header.some((column, index) => column.trim().toLowerCase() !== COLUMNS[index])
+  ) {
     return { ok: false, error: 'Use columns: date,description,category,amount,fixed.' };
   }
   if (!rows.length) return { ok: false, error: 'The CSV has no expenses.' };
@@ -68,14 +85,22 @@ export function parseExpensesCsv(text: string, today: string): CsvResult {
   const values: ExpenseValue[] = [];
   for (let index = 0; index < rows.length; index += 1) {
     const row = rows[index];
-    if (row.length !== header.length) return { ok: false, error: `Row ${index + 2}: wrong number of columns.` };
+    if (row.length !== header.length)
+      return { ok: false, error: `Row ${index + 2}: wrong number of columns.` };
     const [date, rawNote, category, amount, rawFixed = ''] = row;
     const fixed = rawFixed.trim().toLowerCase();
-    if (!['', 'true', 'false'].includes(fixed)) return { ok: false, error: `Row ${index + 2}: fixed must be true or false.` };
-    const description = rawNote.startsWith("'") && (formulaPrefix.test(rawNote.slice(1)) || rawNote.startsWith("''"))
-      ? rawNote.slice(1) : rawNote;
-    const result = validateExpense({ date: date.trim(), description, category: category.trim(), amount }, today);
-    if (!result.ok) return { ok: false, error: `Row ${index + 2}: ${Object.values(result.errors).join(' ')}` };
+    if (!['', 'true', 'false'].includes(fixed))
+      return { ok: false, error: `Row ${index + 2}: fixed must be true or false.` };
+    const description =
+      rawNote.startsWith("'") && (formulaPrefix.test(rawNote.slice(1)) || rawNote.startsWith("''"))
+        ? rawNote.slice(1)
+        : rawNote;
+    const result = validateExpense(
+      { date: date.trim(), description, category: category.trim(), amount },
+      today,
+    );
+    if (!result.ok)
+      return { ok: false, error: `Row ${index + 2}: ${Object.values(result.errors).join(' ')}` };
     values.push({ ...result.value, ...(fixed === 'true' ? { fixed: true } : {}) });
   }
   return { ok: true, values };

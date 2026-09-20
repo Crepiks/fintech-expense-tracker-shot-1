@@ -2,7 +2,15 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { expect, it, vi } from 'vitest';
 import App from '../src/App';
 import { data, expense } from './fixtures';
-import { appTestLifecycle, closeSettings, editExpense, navigate, openSettings, seed, stored } from './appHelpers';
+import {
+  appTestLifecycle,
+  closeSettings,
+  editExpense,
+  navigate,
+  openSettings,
+  seed,
+  stored,
+} from './appHelpers';
 
 appTestLifecycle();
 const loadDemo = () => fireEvent.click(screen.getByRole('button', { name: 'Add demo data' }));
@@ -19,12 +27,19 @@ it('loads demo data through Settings and persists the populated calendar, ledger
   closeSettings();
   expect(screen.getByLabelText('Total spent')).not.toHaveTextContent('$0.00');
   fireEvent.click(screen.getByRole('button', { name: /September 19, 2026/ }));
-  expect(screen.getByRole('region', { name: 'Selected day' })).toHaveTextContent('Weekly grocery shop');
+  expect(screen.getByRole('region', { name: 'Selected day' })).toHaveTextContent(
+    'Weekly grocery shop',
+  );
   navigate('ledger');
-  expect(screen.getAllByRole('button', { name: 'Edit Apartment rent' })[0]).toHaveTextContent('$750.00');
+  expect(screen.getAllByRole('button', { name: 'Edit Apartment rent' })[0]).toHaveTextContent(
+    '$750.00',
+  );
   navigate('budget');
   expect(screen.getByLabelText('Monthly limit')).toHaveValue('1800.00');
-  expect(screen.getAllByRole('img', { name: /Cumulative spending/ })[0]).toHaveAttribute('aria-label', 'Cumulative spending $1,293.11; month-end estimate $1,607.97; limit $1,800.00');
+  expect(screen.getAllByRole('img', { name: /Cumulative spending/ })[0]).toHaveAttribute(
+    'aria-label',
+    'Cumulative spending $1,293.11; month-end estimate $1,607.97; limit $1,800.00',
+  );
   const saved = stored();
   unmount();
   render(<App />);
@@ -43,8 +58,8 @@ it('preserves existing records and configured limits when adding demos in a navi
   loadDemo();
   expect(stored().expenses).toContainEqual(expense);
   expect(stored().settings).toEqual(data.settings);
-  expect(stored().expenses.some(item => item.date === '2026-06-01')).toBe(true);
-  expect(stored().expenses.filter(item => item.date.startsWith('2026-09'))).toEqual([expense]);
+  expect(stored().expenses.some((item) => item.date === '2026-06-01')).toBe(true);
+  expect(stored().expenses.filter((item) => item.date.startsWith('2026-09'))).toEqual([expense]);
 });
 
 it('preserves edits to demo expenses and does not duplicate them on rapid repeated clicks', () => {
@@ -61,11 +76,20 @@ it('preserves edits to demo expenses and does not duplicate them on rapid repeat
   openSettings();
   loadDemo();
   expect(stored().expenses).toHaveLength(count);
-  expect(stored().expenses.find(item => item.date === '2026-09-01' && item.fixed)?.amountMinor).toBe(80000);
+  expect(
+    stored().expenses.find((item) => item.date === '2026-09-01' && item.fixed)?.amountMinor,
+  ).toBe(80000);
 });
 
 it('shows capacity errors inside Settings without a partial import', () => {
-  const full = { ...data, expenses: Array.from({ length: 9999 }, (_, index) => ({ ...expense, date: '2020-01-01', id: String(index) })) };
+  const full = {
+    ...data,
+    expenses: Array.from({ length: 9999 }, (_, index) => ({
+      ...expense,
+      date: '2020-01-01',
+      id: String(index),
+    })),
+  };
   seed(full);
   render(<App />);
   openSettings();
@@ -97,7 +121,9 @@ it('restores just one deleted example after reload and reports a single addition
 
 it('keeps storage failures visible in the modal and retries saving without adding duplicates', () => {
   render(<App />);
-  const fail = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('quota'); });
+  const fail = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+    throw new Error('quota');
+  });
   openSettings();
   loadDemo();
   expect(demoCard().getByRole('alert')).toHaveTextContent('Could not save');

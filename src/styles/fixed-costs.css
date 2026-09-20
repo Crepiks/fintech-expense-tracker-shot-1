@@ -63,7 +63,10 @@
 
 .repeat-hint span {
   color: #3e444e;
-  font: 400 13px Geist, system-ui, sans-serif;
+  font:
+    400 13px Geist,
+    system-ui,
+    sans-serif;
 }
 
 .repeat-hint code {

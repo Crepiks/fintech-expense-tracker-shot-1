@@ -13,7 +13,10 @@ export function useToday() {
       midnight.setHours(24, 0, 0, 0);
       timer = window.setTimeout(refresh, midnight.getTime() - now.getTime());
     };
-    const refresh = () => { setToday(todayLocal()); schedule(); };
+    const refresh = () => {
+      setToday(todayLocal());
+      schedule();
+    };
     schedule();
     window.addEventListener('focus', refresh);
     document.addEventListener('visibilitychange', refresh);

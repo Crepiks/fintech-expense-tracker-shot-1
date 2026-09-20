@@ -1,4 +1,4 @@
-import { StrictMode } from 'react';
+import { StrictMode, useEffect } from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { useExpenses } from '../../src/state/useExpenses';
@@ -7,6 +7,26 @@ import { data, empty, expense } from '../fixtures';
 
 beforeEach(() => localStorage.clear());
 afterEach(() => vi.restoreAllMocks());
+it('does not retrigger recurring-effect consumers after unrelated updates', () => {
+  let effectRuns = 0;
+  const { result, rerender } = renderHook(() => {
+    const store = useExpenses();
+    const { applyRecurring } = store;
+    useEffect(() => {
+      effectRuns += 1;
+    }, [applyRecurring]);
+    return store;
+  });
+  expect(effectRuns).toBe(1);
+
+  act(() => result.current.setBudget(500000));
+  expect(result.current.settings.monthlyBudgetMinor).toBe(500000);
+  expect(effectRuns).toBe(1);
+
+  rerender();
+  expect(effectRuns).toBe(1);
+});
+
 it('loads before persisting, including StrictMode remount effects', () => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   const { result } = renderHook(useExpenses, { wrapper: StrictMode });
@@ -23,7 +43,9 @@ it('merges demo actions against the latest state when updates are batched', () =
   });
   expect(result.current.expenses).toContainEqual(expense);
   expect(result.current.settings.monthlyBudgetMinor).toBe(250000);
-  expect(new Set(result.current.expenses.map(item => item.id)).size).toBe(result.current.expenses.length);
+  expect(new Set(result.current.expenses.map((item) => item.id)).size).toBe(
+    result.current.expenses.length,
+  );
   expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).expenses).toEqual(result.current.expenses);
 });
 it('persists add, remove, restore and budget changes across remounts', () => {
@@ -40,7 +62,9 @@ it('persists add, remove, restore and budget changes across remounts', () => {
   expect(next.result.current.settings.monthlyBudgetMinor).toBe(500000);
 });
 it('shows and then clears a write failure notice after a successful change', () => {
-  const fail = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('quota'); });
+  const fail = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+    throw new Error('quota');
+  });
   const { result } = renderHook(useExpenses);
   expect(result.current.storageNotice).toContain('Could not save');
   act(() => result.current.add(expense));
@@ -79,7 +103,9 @@ it('clears state when another tab removes storage', () => {
 it('warns on corrupt data received from another tab', () => {
   const { result } = renderHook(useExpenses);
   localStorage.setItem(STORAGE_KEY, 'bad');
-  act(() => window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY, newValue: 'bad' })));
+  act(() =>
+    window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY, newValue: 'bad' })),
+  );
   expect(result.current.storageNotice).toContain('recovered');
 });
 it('ignores a delayed snapshot when this tab has already saved newer data', () => {
@@ -88,7 +114,9 @@ it('ignores a delayed snapshot when this tab has already saved newer data', () =
   localStorage.setItem(STORAGE_KEY, remoteRaw);
   const newer = { ...expense, id: 'newer', amountMinor: 20000 };
   act(() => result.current.add(newer));
-  act(() => window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY, newValue: remoteRaw })));
+  act(() =>
+    window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY, newValue: remoteRaw })),
+  );
   expect(result.current.expenses).toEqual([newer]);
   act(() => result.current.setBudget(100000));
   expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).expenses).toEqual([newer]);
@@ -113,7 +141,10 @@ it('persists fixed expense edits and atomic imports across remounts', () => {
   act(() => result.current.importExpenses([{ ...expense, id: 'imported', amountMinor: 500 }]));
   unmount();
   const next = renderHook(useExpenses);
-  expect(next.result.current.expenses).toEqual([{ ...expense, fixed: true, description: 'Edited lunch' }, { ...expense, id: 'imported', amountMinor: 500 }]);
+  expect(next.result.current.expenses).toEqual([
+    { ...expense, fixed: true, description: 'Edited lunch' },
+    { ...expense, id: 'imported', amountMinor: 500 },
+  ]);
 });
 
 it('does not resurrect an expense removed by another tab during editing', () => {
@@ -121,7 +152,9 @@ it('does not resurrect an expense removed by another tab during editing', () => 
   const { result } = renderHook(useExpenses);
   const remote = JSON.stringify(empty);
   localStorage.setItem(STORAGE_KEY, remote);
-  act(() => window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY, newValue: remote })));
+  act(() =>
+    window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY, newValue: remote })),
+  );
   act(() => result.current.update({ ...expense, amountMinor: 500 }));
   expect(result.current.expenses).toEqual([]);
   expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).expenses).toEqual([]);
@@ -130,9 +163,21 @@ it('does not resurrect an expense removed by another tab during editing', () => 
 it('persists category limits and recurring progress without duplicating deleted occurrences', () => {
   const { result, unmount } = renderHook(useExpenses);
   act(() => result.current.setCategoryLimit('Food', 20000));
-  act(() => result.current.addRecurring({ id: 'gym', description: 'Gym', category: 'Health', amountMinor: 2500, day: 1, startDate: '2026-09-01', lastAppliedMonth: null }));
+  act(() =>
+    result.current.addRecurring({
+      id: 'gym',
+      description: 'Gym',
+      category: 'Health',
+      amountMinor: 2500,
+      day: 1,
+      startDate: '2026-09-01',
+      lastAppliedMonth: null,
+    }),
+  );
   act(() => result.current.applyRecurring('2026-09-20'));
-  expect(result.current.expenses).toMatchObject([{ id: 'recurring:gym:2026-09', fixed: true, recurringId: 'gym' }]);
+  expect(result.current.expenses).toMatchObject([
+    { id: 'recurring:gym:2026-09', fixed: true, recurringId: 'gym' },
+  ]);
   act(() => result.current.remove('recurring:gym:2026-09'));
   unmount();
   const next = renderHook(useExpenses);
@@ -142,6 +187,8 @@ it('persists category limits and recurring progress without duplicating deleted 
   expect(next.result.current.settings.recurring?.[0].lastAppliedMonth).toBe('2026-09');
   act(() => next.result.current.applyRecurring('2026-10-01'));
   act(() => next.result.current.removeRecurring('gym'));
-  expect(next.result.current.expenses).toMatchObject([{ id: 'recurring:gym:2026-10', fixed: true }]);
+  expect(next.result.current.expenses).toMatchObject([
+    { id: 'recurring:gym:2026-10', fixed: true },
+  ]);
   expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).settings.recurring).toEqual([]);
 });

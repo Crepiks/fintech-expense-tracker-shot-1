@@ -5,12 +5,24 @@ import type { Expense, StoredData } from '../../src/domain/types';
 import { empty, expense } from '../fixtures';
 
 function props() {
-  return { month: '2026-09', today: '2026-09-15', expenses: [] as Expense[], settings: empty.settings,
-    onBudget: vi.fn(), onLimit: vi.fn(), onRepeat: vi.fn(), onRemoveRepeat: vi.fn(), onMonth: vi.fn(), onSettings: vi.fn() };
+  return {
+    month: '2026-09',
+    today: '2026-09-15',
+    expenses: [] as Expense[],
+    settings: empty.settings,
+    onBudget: vi.fn(),
+    onLimit: vi.fn(),
+    onRepeat: vi.fn(),
+    onRemoveRepeat: vi.fn(),
+    onMonth: vi.fn(),
+    onSettings: vi.fn(),
+  };
 }
 
 function categoryRow(tag: string) {
-  return screen.getByText(`#${tag}`, { selector: '.category-name' }).closest('.category-budget') as HTMLElement;
+  return screen
+    .getByText(`#${tag}`, { selector: '.category-name' })
+    .closest('.category-budget') as HTMLElement;
 }
 
 function detail(label: string) {
@@ -27,12 +39,16 @@ it('invites an empty budget and displays no-limit statuses and unavailable guida
   expect(detail('safe to spend / day')).toHaveTextContent('—');
   expect(detail('pace line today')).toHaveTextContent('—');
   expect(detail('vs pace')).toHaveTextContent('—');
-  expect(screen.getAllByRole('img', { name: 'Cumulative spending $0.00; month-end estimate $0.00' })).toHaveLength(2);
+  expect(
+    screen.getAllByRole('img', { name: 'Cumulative spending $0.00; month-end estimate $0.00' }),
+  ).toHaveLength(2);
 });
 
 it('shows a current forecast under the limit with daily allowance and pace', () => {
   const settings = { ...empty.settings, monthlyBudgetMinor: 100000 };
-  render(<BudgetPage {...props()} settings={settings} expenses={[{ ...expense, amountMinor: 15000 }]} />);
+  render(
+    <BudgetPage {...props()} settings={settings} expenses={[{ ...expense, amountMinor: 15000 }]} />,
+  );
   expect(screen.getByRole('heading', { name: 'FORECAST · SEP 30' })).toBeInTheDocument();
   expect(screen.getByText(/LIMIT \$1,000 · DAY 15\/30/)).toBeInTheDocument();
   expect(screen.getAllByText('$700.00 under')).toHaveLength(2);
@@ -42,17 +58,29 @@ it('shows a current forecast under the limit with daily allowance and pace', () 
 });
 
 it('compares only observed spending against todays pace while reserving future records', () => {
-  render(<BudgetPage {...props()} settings={{ ...empty.settings, monthlyBudgetMinor: 100000 }} expenses={[
-    { ...expense, amountMinor: 15000 },
-    { ...expense, id: 'scheduled', date: '2026-09-25', amountMinor: 20000 },
-  ]} />);
+  render(
+    <BudgetPage
+      {...props()}
+      settings={{ ...empty.settings, monthlyBudgetMinor: 100000 }}
+      expenses={[
+        { ...expense, amountMinor: 15000 },
+        { ...expense, id: 'scheduled', date: '2026-09-25', amountMinor: 20000 },
+      ]}
+    />,
+  );
   expect(detail('pace line today')).toHaveTextContent('$500.00');
   expect(detail('vs pace')).toHaveTextContent('-$350.00');
   expect(detail('safe to spend / day')).toHaveTextContent('$40.62');
 });
 
 it('shows overspending without a negative safe daily allowance', () => {
-  render(<BudgetPage {...props()} settings={{ ...empty.settings, monthlyBudgetMinor: 10000 }} expenses={[{ ...expense, amountMinor: 15000 }]} />);
+  render(
+    <BudgetPage
+      {...props()}
+      settings={{ ...empty.settings, monthlyBudgetMinor: 10000 }}
+      expenses={[{ ...expense, amountMinor: 15000 }]}
+    />,
+  );
   expect(screen.getAllByText('$200.00 over')).toHaveLength(2);
   expect(detail('safe to spend / day')).toHaveTextContent('$0.00');
 });
@@ -61,15 +89,31 @@ it.each([
   ['2026-08', '2026-08-01', 'MONTH TOTAL · AUG 31', '$150.00'],
   ['2026-10', '2026-10-01', 'FORECAST · OCT 31', '$150.00'],
 ])('uses appropriate forecast guidance for %s', (month, date, heading, total) => {
-  render(<BudgetPage {...props()} month={month} settings={{ ...empty.settings, monthlyBudgetMinor: 100000 }} expenses={[{ ...expense, date, amountMinor: 15000 }]} />);
+  render(
+    <BudgetPage
+      {...props()}
+      month={month}
+      settings={{ ...empty.settings, monthlyBudgetMinor: 100000 }}
+      expenses={[{ ...expense, date, amountMinor: 15000 }]}
+    />,
+  );
   expect(screen.getByRole('heading', { name: heading })).toBeInTheDocument();
   expect(screen.getByText(total, { selector: '.forecast-amount' })).toBeInTheDocument();
   expect(detail('safe to spend / day')).toHaveTextContent('—');
 });
 
 it('distinguishes no limit, over, paid, watch and on-track categories', () => {
-  const settings: StoredData['settings'] = { ...empty.settings, monthlyBudgetMinor: 100000,
-    categoryLimits: { Housing: 10000, Food: 10000, Transportation: 10000, Fun: 10000, Health: 10000 } };
+  const settings: StoredData['settings'] = {
+    ...empty.settings,
+    monthlyBudgetMinor: 100000,
+    categoryLimits: {
+      Housing: 10000,
+      Food: 10000,
+      Transportation: 10000,
+      Fun: 10000,
+      Health: 10000,
+    },
+  };
   const expenses: Expense[] = [
     { ...expense, id: 'housing', category: 'Housing', amountMinor: 10000, fixed: true },
     { ...expense, id: 'food', category: 'Food', amountMinor: 12000 },
@@ -107,14 +151,28 @@ it('toggles the mobile category limit editing state', () => {
   fireEvent.click(screen.getByRole('button', { name: 'edit limits' }));
   expect(screen.getByRole('button', { name: 'done' })).toHaveAttribute('aria-pressed', 'true');
   fireEvent.click(screen.getByRole('button', { name: 'done' }));
-  expect(screen.getByRole('button', { name: 'edit limits' })).toHaveAttribute('aria-pressed', 'false');
+  expect(screen.getByRole('button', { name: 'edit limits' })).toHaveAttribute(
+    'aria-pressed',
+    'false',
+  );
 });
 
 it('shows saved recurring costs and dispatches stop and add actions', () => {
   const callbacks = props();
-  const settings: StoredData['settings'] = { ...empty.settings, recurring: [
-    { id: 'phone', description: 'Phone plan', amountMinor: 2500, category: 'Other', day: 20, startDate: '2026-09-01', lastAppliedMonth: null },
-  ] };
+  const settings: StoredData['settings'] = {
+    ...empty.settings,
+    recurring: [
+      {
+        id: 'phone',
+        description: 'Phone plan',
+        amountMinor: 2500,
+        category: 'Other',
+        day: 20,
+        startDate: '2026-09-01',
+        lastAppliedMonth: null,
+      },
+    ],
+  };
   render(<BudgetPage {...callbacks} settings={settings} />);
   expect(screen.getByText('Phone plan')).toBeInTheDocument();
   expect(screen.getByText('#other · monthly · day 20')).toBeInTheDocument();
@@ -134,7 +192,14 @@ it('switches to adjacent months through budget navigation', () => {
 
 it('lists fixed expenses without an active recurring rule with their recorded date', () => {
   const expenses: Expense[] = [
-    { ...expense, id: 'rent', category: 'Housing', amountMinor: 80000, description: 'Rent', fixed: true },
+    {
+      ...expense,
+      id: 'rent',
+      category: 'Housing',
+      amountMinor: 80000,
+      description: 'Rent',
+      fixed: true,
+    },
     { ...expense, id: 'unnamed', category: 'Health', amountMinor: 5000, fixed: true },
     { ...expense, id: 'variable', category: 'Housing', description: 'Furniture', fixed: false },
   ];
@@ -148,12 +213,37 @@ it('lists fixed expenses without an active recurring rule with their recorded da
 });
 
 it('keeps stopped recurring expenses visible and avoids duplicating active recurring costs', () => {
-  const settings: StoredData['settings'] = { ...empty.settings, recurring: [
-    { id: 'phone', description: 'Phone plan', amountMinor: 2500, category: 'Other', day: 20, startDate: '2026-09-01', lastAppliedMonth: '2026-09' },
-  ] };
+  const settings: StoredData['settings'] = {
+    ...empty.settings,
+    recurring: [
+      {
+        id: 'phone',
+        description: 'Phone plan',
+        amountMinor: 2500,
+        category: 'Other',
+        day: 20,
+        startDate: '2026-09-01',
+        lastAppliedMonth: '2026-09',
+      },
+    ],
+  };
   const expenses: Expense[] = [
-    { ...expense, id: 'phone-charge', amountMinor: 2500, description: 'Phone plan', fixed: true, recurringId: 'phone' },
-    { ...expense, id: 'gym-charge', amountMinor: 5000, description: 'Gym', fixed: true, recurringId: 'stopped-gym' },
+    {
+      ...expense,
+      id: 'phone-charge',
+      amountMinor: 2500,
+      description: 'Phone plan',
+      fixed: true,
+      recurringId: 'phone',
+    },
+    {
+      ...expense,
+      id: 'gym-charge',
+      amountMinor: 5000,
+      description: 'Gym',
+      fixed: true,
+      recurringId: 'stopped-gym',
+    },
   ];
   render(<BudgetPage {...props()} settings={settings} expenses={expenses} />);
   expect(screen.getAllByText('Phone plan', { selector: '.fixed-cost strong' })).toHaveLength(1);

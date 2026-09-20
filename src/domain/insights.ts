@@ -13,7 +13,8 @@ function calendarDate(year: number, month: number, day: number): Date {
 function monthParts(month: string): number[] {
   if (!/^\d{4}-\d{2}$/.test(month)) throw new RangeError('Use a month in YYYY-MM format.');
   const [year, number] = month.split('-').map(Number);
-  if (year < 1 || number < 1 || number > 12) throw new RangeError('Month is outside the supported calendar.');
+  if (year < 1 || number < 1 || number > 12)
+    throw new RangeError('Month is outside the supported calendar.');
   return [year, number];
 }
 
@@ -27,7 +28,8 @@ function dateParts(date: string): number[] {
   const month = date.slice(0, 7);
   const [year, number] = monthParts(month);
   const day = Number(date.slice(8));
-  if (day < 1 || day > daysInMonth(month)) throw new RangeError('Date is outside its calendar month.');
+  if (day < 1 || day > daysInMonth(month))
+    throw new RangeError('Date is outside its calendar month.');
   return [year, number, day];
 }
 
@@ -37,7 +39,9 @@ export function dateLabel(date: string): string {
 }
 
 /** Pad Monday-first weeks; padding beyond year 9999 is an inert blank cell. */
-export function calendarCells(month: string): Array<{ date: string; day: number; inMonth: boolean }> {
+export function calendarCells(
+  month: string,
+): Array<{ date: string; day: number; inMonth: boolean }> {
   const [year, number] = monthParts(month);
   const days = daysInMonth(month);
   const leading = (calendarDate(year, number, 1).getUTCDay() + 6) % 7;
@@ -46,7 +50,11 @@ export function calendarCells(month: string): Array<{ date: string; day: number;
     const day = index - leading + 1;
     const date = calendarDate(year, number, day);
     if (date.getUTCFullYear() > 9999) return { date: '', day: 0, inMonth: false };
-    return { date: date.toISOString().slice(0, 10), day: date.getUTCDate(), inMonth: day >= 1 && day <= days };
+    return {
+      date: date.toISOString().slice(0, 10),
+      day: date.getUTCDate(),
+      inMonth: day >= 1 && day <= days,
+    };
   });
 }
 
@@ -58,12 +66,22 @@ export function calendarShade(variableMinor: number): number {
   return 4;
 }
 
-function pendingFixedCosts(expenses: Expense[], month: string, today: string, recurring: RecurringCost[]): number {
+function pendingFixedCosts(
+  expenses: Expense[],
+  month: string,
+  today: string,
+  recurring: RecurringCost[],
+): number {
   const days = daysInMonth(month);
   return recurring.reduce((sum, rule) => {
     const due = `${month}-${String(Math.min(rule.day, days)).padStart(2, '0')}`;
-    if (due <= today || due < rule.startDate || (rule.lastAppliedMonth !== null && rule.lastAppliedMonth >= month)
-      || expenses.some(expense => expense.recurringId === rule.id)) return sum;
+    if (
+      due <= today ||
+      due < rule.startDate ||
+      (rule.lastAppliedMonth !== null && rule.lastAppliedMonth >= month) ||
+      expenses.some((expense) => expense.recurringId === rule.id)
+    )
+      return sum;
     return sum + rule.amountMinor;
   }, 0);
 }
@@ -74,13 +92,18 @@ function pendingFixedCosts(expenses: Expense[], month: string, today: string, re
  * unrounded observed variable average × future days), rounded to minor units once.
  * Safe spending reserves pending fixed costs and divides by days including today.
  */
-export function monthInsights(expenses: Expense[], month: string, today: string, budgetMinor: number | null,
-  recurring: RecurringCost[] = []) {
+export function monthInsights(
+  expenses: Expense[],
+  month: string,
+  today: string,
+  budgetMinor: number | null,
+  recurring: RecurringCost[] = [],
+) {
   const [, , todayDay] = dateParts(today);
   const days = daysInMonth(month);
   const currentMonth = today.slice(0, 7);
   const elapsedDays = month < currentMonth ? days : month === currentMonth ? todayDay : 0;
-  const records = expenses.filter(expense => expense.date.slice(0, 7) === month);
+  const records = expenses.filter((expense) => expense.date.slice(0, 7) === month);
   const actualPoints = Array<number>(elapsedDays + 1).fill(0);
   const spendDays = new Set<number>();
   let totalMinor = 0;
@@ -105,15 +128,31 @@ export function monthInsights(expenses: Expense[], month: string, today: string,
   const remainingMinor = budgetMinor === null ? null : budgetMinor - totalMinor;
   const monthFixedMinor = fixedMinor + pendingMinor;
   return {
-    totalMinor, fixedMinor, monthFixedMinor, variableMinor: totalMinor - fixedMinor,
-    variableAverageMinor: Math.round(observedAverage), elapsedDays, days, remainingMinor,
-    safePerDayMinor: remainingMinor !== null && month === currentMonth
-      ? Math.max(0, Math.floor((remainingMinor - pendingMinor) / (days - elapsedDays + 1))) : null,
+    totalMinor,
+    fixedMinor,
+    monthFixedMinor,
+    variableMinor: totalMinor - fixedMinor,
+    variableAverageMinor: Math.round(observedAverage),
+    elapsedDays,
+    days,
+    remainingMinor,
+    safePerDayMinor:
+      remainingMinor !== null && month === currentMonth
+        ? Math.max(0, Math.floor((remainingMinor - pendingMinor) / (days - elapsedDays + 1)))
+        : null,
     noSpendDays: elapsedDays - spendDays.size,
-    forecastMinor: Math.round(actualPoints[elapsedDays] + futureFixedMinor
-      + Math.max(futureVariableMinor, observedAverage * (days - elapsedDays))),
-    paceMinor: budgetMinor === null ? null
-      : Math.round(monthFixedMinor + Math.max(0, budgetMinor - monthFixedMinor) * elapsedDays / days),
-    actualPoints, futureFixedMinor,
+    forecastMinor: Math.round(
+      actualPoints[elapsedDays] +
+        futureFixedMinor +
+        Math.max(futureVariableMinor, observedAverage * (days - elapsedDays)),
+    ),
+    paceMinor:
+      budgetMinor === null
+        ? null
+        : Math.round(
+            monthFixedMinor + (Math.max(0, budgetMinor - monthFixedMinor) * elapsedDays) / days,
+          ),
+    actualPoints,
+    futureFixedMinor,
   };
 }

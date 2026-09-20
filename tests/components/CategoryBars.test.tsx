@@ -3,11 +3,21 @@ import { expect, it } from 'vitest';
 import { CategoryBars } from '../../src/components/CategoryBars';
 import type { Category } from '../../src/domain/categories';
 
-const totals: Record<Category, number> = { Food: 2500, Transportation: 1500, Housing: 80000, Study: 0, Fun: 0, Health: 0, Other: 0 };
+const totals: Record<Category, number> = {
+  Food: 2500,
+  Transportation: 1500,
+  Housing: 80000,
+  Study: 0,
+  Fun: 0,
+  Health: 0,
+  Other: 0,
+};
 const categoryRow = (tag: string) => screen.getByText(tag).parentElement!.parentElement!;
 
 it('shows spending and limits with proportional bars capped at one hundred percent', () => {
-  render(<CategoryBars totals={totals} limits={{ Food: 10000, Transportation: 1000, Housing: 80000 }} />);
+  render(
+    <CategoryBars totals={totals} limits={{ Food: 10000, Transportation: 1000, Housing: 80000 }} />,
+  );
   const food = categoryRow('#food');
   const transport = categoryRow('#transport');
   const housing = categoryRow('#housing');

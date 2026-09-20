@@ -4,12 +4,22 @@ import { CalendarGrid } from '../../src/components/CalendarGrid';
 import type { Expense } from '../../src/domain/types';
 
 const expense = (date: string, amountMinor: number, extra: Partial<Expense> = {}): Expense => ({
-  id: date, date, amountMinor, category: 'Food', createdAt: 1, ...extra,
+  id: date,
+  date,
+  amountMinor,
+  category: 'Food',
+  createdAt: 1,
+  ...extra,
 });
 const setup = (overrides: Partial<Parameters<typeof CalendarGrid>[0]> = {}) => {
   const props = {
-    month: '2026-09', today: '2026-09-20', selected: '2026-09-20',
-    expenses: [] as Expense[], onSelect: vi.fn(), week: false, ...overrides,
+    month: '2026-09',
+    today: '2026-09-20',
+    selected: '2026-09-20',
+    expenses: [] as Expense[],
+    onSelect: vi.fn(),
+    week: false,
+    ...overrides,
   };
   return { props, ...render(<CalendarGrid {...props} />) };
 };
@@ -40,10 +50,13 @@ it('marks today independently from the selected day and distinguishes future emp
 });
 
 it('shades only flexible spending while including fixed costs in day and week totals', () => {
-  const { container } = setup({ expenses: [
-    expense('2026-09-20', 1500), expense('2026-09-20', 1000, { id: 'rent', fixed: true, category: 'Housing' }),
-    expense('2026-09-18', 500),
-  ] });
+  const { container } = setup({
+    expenses: [
+      expense('2026-09-20', 1500),
+      expense('2026-09-20', 1000, { id: 'rent', fixed: true, category: 'Housing' }),
+      expense('2026-09-18', 500),
+    ],
+  });
   const day = screen.getByRole('button', { name: 'September 20, 2026, $25.00' });
   expect(day).toHaveClass('shade-2', 'fixed-day');
   expect(day).toHaveTextContent('FIXED');
@@ -71,11 +84,16 @@ it('shows planned future expenses with fixed markers and flexible amounts', () =
 });
 
 it('limits category indicators to four distinct categories per date', () => {
-  setup({ expenses: [
-    expense('2026-09-10', 100), expense('2026-09-10', 200, { category: 'Food' }),
-    expense('2026-09-10', 100, { category: 'Housing' }), expense('2026-09-10', 100, { category: 'Fun' }),
-    expense('2026-09-10', 100, { category: 'Study' }), expense('2026-09-10', 100, { category: 'Health' }),
-  ] });
+  setup({
+    expenses: [
+      expense('2026-09-10', 100),
+      expense('2026-09-10', 200, { category: 'Food' }),
+      expense('2026-09-10', 100, { category: 'Housing' }),
+      expense('2026-09-10', 100, { category: 'Fun' }),
+      expense('2026-09-10', 100, { category: 'Study' }),
+      expense('2026-09-10', 100, { category: 'Health' }),
+    ],
+  });
   const day = screen.getByRole('button', { name: 'September 10, 2026, $7.00' });
   expect(day.querySelectorAll('.day-dots i')).toHaveLength(4);
 });
@@ -83,9 +101,15 @@ it('limits category indicators to four distinct categories per date', () => {
 it('shows only the selected Monday-to-Sunday week and its date labels', () => {
   const { container } = setup({ week: true, selected: '2026-09-15' });
   expect(screen.getAllByRole('button')).toHaveLength(7);
-  expect(screen.getByRole('button', { name: 'September 14, 2026, $0.00' })).toHaveTextContent('MON · SEP 14');
-  expect(screen.getByRole('button', { name: 'September 20, 2026, $0.00' })).toHaveTextContent('SUN · SEP 20');
-  expect(screen.queryByRole('button', { name: 'September 21, 2026, $0.00' })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'September 14, 2026, $0.00' })).toHaveTextContent(
+    'MON · SEP 14',
+  );
+  expect(screen.getByRole('button', { name: 'September 20, 2026, $0.00' })).toHaveTextContent(
+    'SUN · SEP 20',
+  );
+  expect(
+    screen.queryByRole('button', { name: 'September 21, 2026, $0.00' }),
+  ).not.toBeInTheDocument();
   expect(container.querySelector('.calendar-grid-wrap')).toHaveClass('week-view');
 });
 
@@ -104,13 +128,28 @@ it('renders inert blank padding beyond the maximum calendar year', () => {
   expect(padding[2]).toBeEmptyDOMElement();
   expect(padding[2]).not.toHaveAttribute('aria-label');
   expect(padding[3]).toBeEmptyDOMElement();
-  expect(screen.getByRole('button', { name: 'December 31, 9999, $0.00' })).toHaveAttribute('aria-pressed', 'true');
-  rerender(<CalendarGrid month="9999-12" selected="9999-12-31" today="9999-12-31" expenses={[]} onSelect={vi.fn()} week />);
+  expect(screen.getByRole('button', { name: 'December 31, 9999, $0.00' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  rerender(
+    <CalendarGrid
+      month="9999-12"
+      selected="9999-12-31"
+      today="9999-12-31"
+      expenses={[]}
+      onSelect={vi.fn()}
+      week
+    />,
+  );
   expect(screen.getAllByRole('button')).toHaveLength(5);
   expect(container.querySelectorAll('.calendar-pad')).toHaveLength(2);
 });
 
 it('renders the first supported year without shifting it into the twentieth century', () => {
   setup({ month: '0001-01', selected: '0001-01-01', today: '0001-01-01' });
-  expect(screen.getByRole('button', { name: 'January 1, 1, $0.00' })).toHaveAttribute('aria-current', 'date');
+  expect(screen.getByRole('button', { name: 'January 1, 1, $0.00' })).toHaveAttribute(
+    'aria-current',
+    'date',
+  );
 });

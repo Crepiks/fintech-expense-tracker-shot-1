@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import type { Category } from '../domain/categories';
 import type { Expense, RecurringCost } from '../domain/types';
 import { load, save, subscribe } from '../storage/storage';
@@ -14,6 +14,13 @@ export function useExpenses() {
     return loaded.data;
   });
   const [storageNotice, setStorageNotice] = useState(initialNotice.current);
+  // Consumers can depend on this action without rerunning on unrelated renders.
+  const applyRecurring = useCallback(
+    (today: string) => {
+      dispatch({ type: 'applyRecurring', today });
+    },
+    [dispatch],
+  );
 
   useEffect(() => {
     const raw = JSON.stringify(state);
@@ -22,17 +29,24 @@ export function useExpenses() {
       lastSaved.current = raw;
       setStorageNotice(initialNotice.current);
     } else {
-      setStorageNotice('Could not save. Storage is full or unavailable. Changes are only in this tab until saving succeeds.');
+      setStorageNotice(
+        'Could not save. Storage is full or unavailable. Changes are only in this tab until saving succeeds.',
+      );
     }
   }, [state]);
 
-  useEffect(() => subscribe((incoming, raw) => {
-    if (raw === lastSaved.current) return;
-    // Remote updates must not echo writes back to the originating tab.
-    lastSaved.current = JSON.stringify(incoming.data);
-    if (incoming.recovered) setStorageNotice('Data from another tab was recovered. Invalid records were removed.');
-    dispatch({ type: 'replaceAll', data: incoming.data });
-  }), []);
+  useEffect(
+    () =>
+      subscribe((incoming, raw) => {
+        if (raw === lastSaved.current) return;
+        // Remote updates must not echo writes back to the originating tab.
+        lastSaved.current = JSON.stringify(incoming.data);
+        if (incoming.recovered)
+          setStorageNotice('Data from another tab was recovered. Invalid records were removed.');
+        dispatch({ type: 'replaceAll', data: incoming.data });
+      }),
+    [],
+  );
 
   return {
     expenses: state.expenses,
@@ -49,10 +63,11 @@ export function useExpenses() {
     restore: (expense: Expense) => dispatch({ type: 'restore', expense }),
     setBudget: (minor: number | null) => dispatch({ type: 'setBudget', minor }),
     setStipendDay: (day: number | null) => dispatch({ type: 'setStipendDay', day }),
-    setCategoryLimit: (category: Category, minor: number | null) => dispatch({ type: 'setCategoryLimit', category, minor }),
+    setCategoryLimit: (category: Category, minor: number | null) =>
+      dispatch({ type: 'setCategoryLimit', category, minor }),
     addRecurring: (cost: RecurringCost) => dispatch({ type: 'addRecurring', cost }),
     removeRecurring: (id: string) => dispatch({ type: 'removeRecurring', id }),
-    applyRecurring: (today: string) => dispatch({ type: 'applyRecurring', today }),
+    applyRecurring,
     storageNotice,
   };
 }

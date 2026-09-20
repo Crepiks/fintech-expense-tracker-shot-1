@@ -10,12 +10,13 @@ function monthIndex(value: string): number {
 export function applyRecurring(state: StoredData, today: string): StoredData {
   if (!isValidDate(today) || !state.settings.recurring?.length) return state;
   const expenses = [...state.expenses];
-  const ids = new Set(expenses.map(expense => expense.id));
+  const ids = new Set(expenses.map((expense) => expense.id));
   const through = monthIndex(today);
   let changed = false;
-  const recurring = state.settings.recurring.map(rule => {
+  const recurring = state.settings.recurring.map((rule) => {
     const first = monthIndex(rule.startDate);
-    const afterLast = rule.lastAppliedMonth === null ? first : monthIndex(rule.lastAppliedMonth) + 1;
+    const afterLast =
+      rule.lastAppliedMonth === null ? first : monthIndex(rule.lastAppliedMonth) + 1;
     let lastAppliedMonth = rule.lastAppliedMonth;
     for (let index = Math.max(first, afterLast); index <= through; index++) {
       const year = Math.floor(index / 12);
@@ -43,12 +44,24 @@ export function applyRecurring(state: StoredData, today: string): StoredData {
   return changed ? { ...state, expenses, settings: { ...state.settings, recurring } } : state;
 }
 
-function occurrence(rule: RecurringCost, id: string, date: string, year: number, month: number, day: number) {
+function occurrence(
+  rule: RecurringCost,
+  id: string,
+  date: string,
+  year: number,
+  month: number,
+  day: number,
+) {
   const timestamp = new Date(0);
   timestamp.setUTCFullYear(year, month, day);
   return {
-    id, date, amountMinor: rule.amountMinor, category: rule.category,
-    description: rule.description, createdAt: Math.max(0, timestamp.getTime()),
-    fixed: true, recurringId: rule.id,
+    id,
+    date,
+    amountMinor: rule.amountMinor,
+    category: rule.category,
+    description: rule.description,
+    createdAt: Math.max(0, timestamp.getTime()),
+    fixed: true,
+    recurringId: rule.id,
   };
 }

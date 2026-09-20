@@ -5,9 +5,18 @@ import type { Expense } from '../../src/domain/types';
 import { expense } from '../fixtures';
 
 function props() {
-  return { today: '2026-09-20', date: '2026-09-20', month: '2026-09', initialText: '',
-    expenses: [] as Expense[], canAdd: true, onRun: vi.fn<(_: string) => string | null>(() => null),
-    onAdd: vi.fn(), onMonth: vi.fn(), onClose: vi.fn() };
+  return {
+    today: '2026-09-20',
+    date: '2026-09-20',
+    month: '2026-09',
+    initialText: '',
+    expenses: [] as Expense[],
+    canAdd: true,
+    onRun: vi.fn<(_: string) => string | null>(() => null),
+    onAdd: vi.fn(),
+    onMonth: vi.fn(),
+    onClose: vi.fn(),
+  };
 }
 const note = () => screen.getByRole('textbox', { name: 'TYPE IT LIKE A NOTE' });
 const typeNote = (value: string) => fireEvent.change(note(), { target: { value } });
@@ -49,8 +58,10 @@ it('warns when a parsed date lies after today', () => {
 });
 
 it.each([
-  ['12 lunch #food', 'add'], ['12 lunch #food', 'add expense'],
-  ['/budget 1000', 'run'], ['/budget 1000', 'run command'],
+  ['12 lunch #food', 'add'],
+  ['12 lunch #food', 'add expense'],
+  ['/budget 1000', 'run'],
+  ['/budget 1000', 'run command'],
 ])('runs %s and closes from the %s action', (initialText, action) => {
   const callbacks = props();
   render(<QuickEntry {...callbacks} initialText={initialText} />);
@@ -159,14 +170,34 @@ it('offers the three newest expenses without mutating their order and reuses a s
   const expenses: Expense[] = [
     { ...expense, id: 'old', createdAt: 1, amountMinor: 100, description: 'old note' },
     { ...expense, id: 'newest', createdAt: 4, amountMinor: 400, description: 'Coffee' },
-    { ...expense, id: 'middle', createdAt: 2, amountMinor: 200, description: 'Bus', category: 'Transportation' },
-    { ...expense, id: 'unnamed', createdAt: 3, amountMinor: 300, description: undefined, category: 'Other' },
+    {
+      ...expense,
+      id: 'middle',
+      createdAt: 2,
+      amountMinor: 200,
+      description: 'Bus',
+      category: 'Transportation',
+    },
+    {
+      ...expense,
+      id: 'unnamed',
+      createdAt: 3,
+      amountMinor: 300,
+      description: undefined,
+      category: 'Other',
+    },
   ];
   render(<QuickEntry {...props()} expenses={expenses} />);
-  const recent = screen.getAllByRole('button').filter(button => button.textContent?.startsWith('↺'));
-  expect(recent.map(button => button.querySelector('code')?.textContent)).toEqual(['4.00 Coffee #food', '3.00  #other', '2.00 Bus #transport']);
+  const recent = screen
+    .getAllByRole('button')
+    .filter((button) => button.textContent?.startsWith('↺'));
+  expect(recent.map((button) => button.querySelector('code')?.textContent)).toEqual([
+    '4.00 Coffee #food',
+    '3.00  #other',
+    '2.00 Bus #transport',
+  ]);
   expect(screen.queryByRole('button', { name: /old note/ })).not.toBeInTheDocument();
-  expect(expenses.map(item => item.id)).toEqual(['old', 'newest', 'middle', 'unnamed']);
+  expect(expenses.map((item) => item.id)).toEqual(['old', 'newest', 'middle', 'unnamed']);
   fireEvent.click(recent[0]);
   expect(note()).toHaveValue('4.00 Coffee #food');
   expect(note()).toHaveFocus();
@@ -181,9 +212,16 @@ it('shows and hides the real manual form and navigates to the saved month', () =
   expect(within(form).getByLabelText('Date')).toHaveValue('2026-08-12');
   fireEvent.change(within(form).getByLabelText('Amount (USD)'), { target: { value: '8.50' } });
   fireEvent.change(within(form).getByLabelText('Category'), { target: { value: 'Food' } });
-  fireEvent.change(within(form).getByLabelText('Description (optional)'), { target: { value: ' Lunch ' } });
+  fireEvent.change(within(form).getByLabelText('Description (optional)'), {
+    target: { value: ' Lunch ' },
+  });
   fireEvent.submit(form);
-  expect(callbacks.onAdd).toHaveBeenCalledExactlyOnceWith({ amountMinor: 850, category: 'Food', date: '2026-08-12', description: 'Lunch' });
+  expect(callbacks.onAdd).toHaveBeenCalledExactlyOnceWith({
+    amountMinor: 850,
+    category: 'Food',
+    date: '2026-08-12',
+    description: 'Lunch',
+  });
   fireEvent.click(screen.getByRole('button', { name: 'View August 2026' }));
   expect(callbacks.onMonth).toHaveBeenCalledExactlyOnceWith('2026-08');
   expect(callbacks.onRun).not.toHaveBeenCalled();
@@ -222,21 +260,30 @@ it('uses the real current day for manual-form warnings opened on a past date', (
 });
 
 it.each([
-  ['today', 'SUN · SEP 20'], ['yesterday', 'SAT · SEP 19'],
-  ['fri', 'FRI · SEP 18'], ['sep 12', 'SAT · SEP 12'],
-])('previews explicit %s relative to today instead of the selected calendar date', (suffix, label) => {
-  render(<QuickEntry {...props()} date="2025-09-01" initialText={`12 lunch #food ${suffix}`} />);
-  expect(screen.getByText(label)).toBeInTheDocument();
-  expect(screen.getByText('// looks right. press enter')).toBeInTheDocument();
-});
+  ['today', 'SUN · SEP 20'],
+  ['yesterday', 'SAT · SEP 19'],
+  ['fri', 'FRI · SEP 18'],
+  ['sep 12', 'SAT · SEP 12'],
+])(
+  'previews explicit %s relative to today instead of the selected calendar date',
+  (suffix, label) => {
+    render(<QuickEntry {...props()} date="2025-09-01" initialText={`12 lunch #food ${suffix}`} />);
+    expect(screen.getByText(label)).toBeInTheDocument();
+    expect(screen.getByText('// looks right. press enter')).toBeInTheDocument();
+  },
+);
 
 it('focuses the note after the native dialog assigns its initial focus', () => {
-  const show = vi.spyOn(HTMLDialogElement.prototype, 'showModal').mockImplementation(function (this: HTMLDialogElement) {
+  const show = vi.spyOn(HTMLDialogElement.prototype, 'showModal').mockImplementation(function (
+    this: HTMLDialogElement,
+  ) {
     this.setAttribute('open', '');
     this.querySelector('button')!.focus();
   });
   try {
     render(<QuickEntry {...props()} />);
     expect(note()).toHaveFocus();
-  } finally { show.mockRestore(); }
+  } finally {
+    show.mockRestore();
+  }
 });

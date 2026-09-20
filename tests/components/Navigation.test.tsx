@@ -2,19 +2,27 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { expect, it, vi } from 'vitest';
 import { Navigation, type View } from '../../src/components/Navigation';
 
-const props = () => ({ view: 'calendar' as View, onView: vi.fn(), onAdd: vi.fn(), onSettings: vi.fn() });
-
-it.each<View>(['calendar', 'ledger', 'budget'])('marks %s as the current page on both navigation surfaces', view => {
-  render(<Navigation {...props()} view={view} />);
-  for (const label of ['Main navigation', 'Mobile navigation']) {
-    const navigation = within(screen.getByRole('navigation', { name: label }));
-    for (const destination of ['calendar', 'ledger', 'budget']) {
-      const button = navigation.getByRole('button', { name: destination });
-      if (destination === view) expect(button).toHaveAttribute('aria-current', 'page');
-      else expect(button).not.toHaveAttribute('aria-current');
-    }
-  }
+const props = () => ({
+  view: 'calendar' as View,
+  onView: vi.fn(),
+  onAdd: vi.fn(),
+  onSettings: vi.fn(),
 });
+
+it.each<View>(['calendar', 'ledger', 'budget'])(
+  'marks %s as the current page on both navigation surfaces',
+  (view) => {
+    render(<Navigation {...props()} view={view} />);
+    for (const label of ['Main navigation', 'Mobile navigation']) {
+      const navigation = within(screen.getByRole('navigation', { name: label }));
+      for (const destination of ['calendar', 'ledger', 'budget']) {
+        const button = navigation.getByRole('button', { name: destination });
+        if (destination === view) expect(button).toHaveAttribute('aria-current', 'page');
+        else expect(button).not.toHaveAttribute('aria-current');
+      }
+    }
+  },
+);
 
 it('opens every view from desktop and mobile navigation', () => {
   const callbacks = props();

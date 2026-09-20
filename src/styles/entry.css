@@ -112,13 +112,13 @@
   padding: 0 12px;
 }
 
-.entry-tokens button[aria-pressed="true"] {
+.entry-tokens button[aria-pressed='true'] {
   background: var(--blue);
   border-color: var(--blue);
   color: #fff !important;
 }
 
-.entry-tokens button:nth-last-child(-n+3) {
+.entry-tokens button:nth-last-child(-n + 3) {
   color: #3e444e;
   background: #f4f5f7;
   border-color: #f4f5f7;

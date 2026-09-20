@@ -8,7 +8,8 @@ export function parseAmount(input: string): AmountResult {
   if (!value) return { ok: false, error: 'Enter an amount.' };
   if (value.startsWith('-')) return { ok: false, error: 'Amount must be greater than 0.' };
   value = /^\d{1,3}(,\d{3})+(\.\d+)?$/.test(value)
-    ? value.replace(/,/g, '') : value.replace(',', '.');
+    ? value.replace(/,/g, '')
+    : value.replace(',', '.');
   if (!/^\d+(\.\d+)?$/.test(value)) {
     return { ok: false, error: 'Use digits only, e.g. 1500 or 1500.50.' };
   }
@@ -20,7 +21,10 @@ export function parseAmount(input: string): AmountResult {
   return { ok: true, minor };
 }
 
-const numberFormat = new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const numberFormat = new Intl.NumberFormat('en-US', {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
+});
 export function formatAmount(minor: number): string {
   return numberFormat.format(minor / 100);
 }

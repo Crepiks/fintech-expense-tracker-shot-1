@@ -4,13 +4,26 @@ import { CalendarPage } from '../../src/components/CalendarPage';
 import type { Expense, StoredData } from '../../src/domain/types';
 
 const expense = (date: string, amountMinor: number, extra: Partial<Expense> = {}): Expense => ({
-  id: date, date, amountMinor, category: 'Food', createdAt: 1, ...extra,
+  id: date,
+  date,
+  amountMinor,
+  category: 'Food',
+  createdAt: 1,
+  ...extra,
 });
 const setup = (overrides: Partial<Parameters<typeof CalendarPage>[0]> = {}) => {
   const props = {
-    month: '2026-09', today: '2026-09-20', selected: '2026-09-20', allExpenses: [] as Expense[],
+    month: '2026-09',
+    today: '2026-09-20',
+    selected: '2026-09-20',
+    allExpenses: [] as Expense[],
     settings: { monthlyBudgetMinor: null, stipendDay: null } as StoredData['settings'],
-    onSelect: vi.fn(), onMonth: vi.fn(), onAdd: vi.fn(), onBudget: vi.fn(), onEdit: vi.fn(), ...overrides,
+    onSelect: vi.fn(),
+    onMonth: vi.fn(),
+    onAdd: vi.fn(),
+    onBudget: vi.fn(),
+    onEdit: vi.fn(),
+    ...overrides,
   };
   return { props, ...render(<CalendarPage {...props} />) };
 };
@@ -56,7 +69,9 @@ it('shows recorded spending, the budget allowance and positive daily difference'
 });
 
 it('compares a fixed-only day against the flexible spending average', () => {
-  setup({ allExpenses: [expense('2026-09-01', 4000), expense('2026-09-20', 50000, { fixed: true })] });
+  setup({
+    allExpenses: [expense('2026-09-01', 4000), expense('2026-09-20', 50000, { fixed: true })],
+  });
   const selected = screen.getByRole('region', { name: 'Selected day' });
   expect(selected).toHaveTextContent('−$2.00 vs avg');
   expect(selected).toHaveTextContent('fixed');
@@ -108,7 +123,11 @@ it.each([
 });
 
 it('shows historical remaining budget without a current-day allowance', () => {
-  setup({ month: '2026-08', selected: '2026-08-01', settings: { monthlyBudgetMinor: 10000, stipendDay: null } });
+  setup({
+    month: '2026-08',
+    selected: '2026-08-01',
+    settings: { monthlyBudgetMinor: 10000, stipendDay: null },
+  });
   expect(screen.getByText('0% of $100.00')).toBeInTheDocument();
   expect(screen.getByText('Current month only')).toBeInTheDocument();
   expect(screen.queryByText('Set a budget')).not.toBeInTheDocument();
@@ -151,7 +170,8 @@ it('disables week navigation at the supported day bounds', () => {
 
 it('includes and selects adjacent-month dates in a complete week', () => {
   const { props } = setup({
-    month: '2026-10', selected: '2026-10-04',
+    month: '2026-10',
+    selected: '2026-10-04',
     allExpenses: [expense('2026-09-30', 1000), expense('2026-10-01', 2000)],
   });
   fireEvent.click(screen.getByRole('button', { name: 'week' }));

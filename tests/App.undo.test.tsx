@@ -2,7 +2,15 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { expect, it } from 'vitest';
 import App from '../src/App';
 import { data, expense } from './fixtures';
-import { addNote, appTestLifecycle, editExpense, navigate, receiveRemote, seed, stored } from './appHelpers';
+import {
+  addNote,
+  appTestLifecycle,
+  editExpense,
+  navigate,
+  receiveRemote,
+  seed,
+  stored,
+} from './appHelpers';
 
 appTestLifecycle();
 
@@ -12,11 +20,21 @@ it('restores the edited values after undoing the most recently added expense', (
   const added = stored().expenses[0];
   editExpense('Edit lunch');
   fireEvent.change(screen.getByLabelText('Amount (USD)'), { target: { value: '15' } });
-  fireEvent.change(screen.getByLabelText('Description (optional)'), { target: { value: 'Dinner' } });
+  fireEvent.change(screen.getByLabelText('Description (optional)'), {
+    target: { value: 'Dinner' },
+  });
   fireEvent.change(screen.getByLabelText('Category'), { target: { value: 'Fun' } });
-  fireEvent.click(screen.getByRole('checkbox', { name: 'Fixed cost (exclude from daily average)' }));
+  fireEvent.click(
+    screen.getByRole('checkbox', { name: 'Fixed cost (exclude from daily average)' }),
+  );
   fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
-  const edited = { ...added, amountMinor: 1500, description: 'Dinner', category: 'Fun', fixed: true };
+  const edited = {
+    ...added,
+    amountMinor: 1500,
+    description: 'Dinner',
+    category: 'Fun',
+    fixed: true,
+  };
   expect(stored().expenses).toEqual([edited]);
 
   addNote('/undo');
