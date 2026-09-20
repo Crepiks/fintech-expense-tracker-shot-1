@@ -11,6 +11,6 @@ export function JudgeMode() {
   }
   return <>
     <button type="button" className="outline-button" ref={trigger} onClick={() => setResults(runSelfTest())}>Run validation scenario</button>
-    {results && <ScenarioDialog results={results} onClose={close} />}
+    {results && <ScenarioDialog results={results} onClose={close} onRunAgain={() => setResults(runSelfTest())} />}
   </>;
 }

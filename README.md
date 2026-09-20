@@ -49,14 +49,14 @@ For a reproducible installation, use `npm ci`. `npm run test:watch` runs tests d
 
 ## How to verify
 
-Choose **Run validation scenario** in the footer. It executes the real reducer and calculation functions in memory and never reads or modifies your stored expenses. All eight checks should pass:
+Choose **Run validation scenario** in the footer. It executes the real reducer and calculation functions in memory and never reads or modifies your stored expenses. All ten checks should pass:
 
 | Operation | Total | Food | Transportation |
 | --- | ---: | ---: | ---: |
 | Add Food 1,500; Transportation 600; Food 900 | 3,000 | 2,400 | 600 |
 | Delete Food 900 | 2,100 | 1,500 | 600 |
 
-Each stage also verifies that category sums equal the total. To verify persistence yourself, enter the same three records in one month, reload, delete the 900 record, reload again, then switch months and back. Open a second tab on the exact same origin to check synchronization.
+Each stage also verifies the record count and that category sums equal the total. Use **Run again** to repeat the scenario without closing it. To verify persistence yourself, enter the same three records in one month, reload, delete the 900 record, reload again, then switch months and back. Open a second tab on the exact same origin to check synchronization.
 
 `npm test` enforces **100% lines, branches, functions, and statements per application file**, including components, hooks, storage, and domain logic. Only `src/main.tsx` is excluded: it only mounts the React root, which is checked in the browser. Tests use concrete expected values, fake clock/randomness/browser storage boundaries, and real components and reducers. See [verification evidence](docs/verification.md) for the checks performed and their limits.
 
