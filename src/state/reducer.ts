@@ -5,7 +5,8 @@ export type ExpenseAction =
   | { type: 'add' | 'restore'; expense: Expense }
   | { type: 'remove'; id: string }
   | { type: 'replaceAll'; data: StoredData }
-  | { type: 'setBudget'; minor: number | null };
+  | { type: 'setBudget'; minor: number | null }
+  | { type: 'setStipendDay'; day: number | null };
 
 /** Consumes validated domain values; persistence and browser effects stay outside. */
 export function expensesReducer(state: StoredData, action: ExpenseAction): StoredData {
@@ -18,7 +19,9 @@ export function expensesReducer(state: StoredData, action: ExpenseAction): Store
       return { ...state, expenses: state.expenses.filter(item => item.id !== action.id) };
     case 'replaceAll':
       return action.data;
+    case 'setStipendDay':
+      return { ...state, settings: { ...state.settings, stipendDay: action.day } };
     case 'setBudget':
-      return { ...state, settings: { monthlyBudgetMinor: action.minor } };
+      return { ...state, settings: { ...state.settings, monthlyBudgetMinor: action.minor } };
   }
 }

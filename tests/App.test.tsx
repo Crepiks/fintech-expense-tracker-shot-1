@@ -126,3 +126,26 @@ it('clears a filter when its last expense is deleted and leaves undo unfiltered'
   fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
   expect(screen.getAllByRole('button', { name: 'Delete expense' })).toHaveLength(2);
 });
+it('updates budget guidance through add, delete, undo, and keeps stipend after reload', () => {
+  const { unmount } = render(<App />);
+  fireEvent.change(screen.getByLabelText('Monthly budget (USD)'), { target: { value: '1200' } });
+  fireEvent.change(screen.getByLabelText('Stipend day (optional)'), { target: { value: '1' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Save budget' }));
+  expect(screen.getByText('Safe to spend today: USD 100')).toBeInTheDocument();
+  fireEvent.change(screen.getByLabelText('Amount (USD)'), { target: { value: '600' } });
+  fireEvent.change(screen.getByLabelText('Category'), { target: { value: 'Food' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Add an expense' }));
+  expect(screen.getByText('Safe to spend today: USD 50')).toBeInTheDocument();
+  expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '50');
+  fireEvent.click(screen.getByRole('button', { name: 'Delete expense' }));
+  expect(screen.getByText('Safe to spend today: USD 100')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+  expect(screen.getByText('Safe to spend today: USD 50')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Previous month' }));
+  expect(screen.queryByText(/Safe to spend today/)).not.toBeInTheDocument();
+  expect(screen.getByText('Stipend in 12 days (Oct 1, 2026)')).toBeInTheDocument();
+  unmount();
+  render(<App />);
+  expect(screen.getByLabelText('Budget amount')).toHaveTextContent('USD 1,200');
+  expect(screen.getByText('Stipend in 12 days (Oct 1, 2026)')).toBeInTheDocument();
+});

@@ -16,7 +16,7 @@ import { JudgeMode } from './components/JudgeMode';
 import { BudgetCard } from './components/BudgetCard';
 
 export default function App() {
-  const { expenses, settings, add, remove, restore, setBudget, storageNotice } = useExpenses();
+  const { expenses, settings, add, remove, restore, setBudget, setStipendDay, storageNotice } = useExpenses();
   const today = useToday();
   const [actionNotice, setActionNotice] = useState('');
   const [selectedMonth, setSelectedMonth] = useState(() => monthKey(today));
@@ -65,7 +65,7 @@ export default function App() {
         </div>
         <aside className="entry-column" aria-label="Manage expenses">
           <ExpenseForm today={today} selectedMonth={selectedMonth} onAdd={addExpense} onMonthChange={changeMonth} canAdd={expenses.length < MAX_EXPENSES} />
-          <BudgetCard budgetMinor={settings.monthlyBudgetMinor} spentMinor={totals.totalMinor} month={selectedMonth} today={today} onSave={setBudget} />
+          <BudgetCard budgetMinor={settings.monthlyBudgetMinor} spentMinor={totals.totalMinor} month={selectedMonth} today={today} onSave={setBudget} stipendDay={settings.stipendDay} onStipendSave={setStipendDay} />
         </aside>
       </div>
     </main>

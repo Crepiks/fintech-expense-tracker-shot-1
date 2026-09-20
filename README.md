@@ -42,8 +42,9 @@ For a reproducible installation, use `npm ci`. `npm run test:watch` runs tests d
 - Show clear warnings for unavailable/full storage while keeping the current tab usable.
 - Warn about future dates without rejecting them; offer a month-switch link when an entry belongs elsewhere.
 - Filter the transaction list through a keyboard-accessible SVG donut or named legend. Slices are sorted by spending and inactive slices dim. Filtering shows the matching record count without altering the month’s overall total or budget, and resets when changing month or deleting the category’s last expense.
-- Set or clear a monthly budget. See spent, remaining, capped progress, and an explicit over-budget amount.
-- For the current month, show a daily allowance: remaining minor units divided by days left including today, rounded down, never below zero. The local date refreshes at midnight and when a suspended tab returns.
+- Set or clear a monthly budget. See spent, remaining, actual percentage used, capped progress, a warning at 80%, and an explicit over-budget amount. Use Edit to change settings.
+- For the current month, show a daily allowance: remaining minor units divided by days left including today, rounded down. The allowance is hidden when the budget is exhausted or exceeded. The local date refreshes at midnight and when a suspended tab returns.
+- Set an optional stipend day (1–31). A separate countdown clamps to the last day of shorter months, including leap years; it never changes the calendar-month budget. Expenses, budget, and stipend day survive refresh and synchronize across same-origin tabs.
 - Run the isolated validation scenario from the footer. A native modal shows expected/actual results and restores keyboard focus when closed.
 - Use labelled native controls, live field errors/status messages, visible focus, and a responsive layout. On narrow screens the transaction table scrolls within its panel.
 

@@ -36,10 +36,10 @@ it('limits excessive records without overflowing aggregate arithmetic', () => {
   expect(result.data.expenses.at(-1)?.id).toBe('9999');
   expect(result.recovered).toBe(true);
 });
-it.each([null, undefined, [], {}, { monthlyBudgetMinor: -1 }, { monthlyBudgetMinor: 0 }, { monthlyBudgetMinor: 0.5 }, { monthlyBudgetMinor: '50' }, { monthlyBudgetMinor: 100000000000 }])(
+it.each([null, [], { monthlyBudgetMinor: -1 }, { monthlyBudgetMinor: 0 }, { monthlyBudgetMinor: 0.5 }, { monthlyBudgetMinor: '50' }, { monthlyBudgetMinor: 100000000000 }])(
   'clears malformed settings while retaining expenses', settings => {
     expect(parseStoredData(JSON.stringify({ ...data, settings }))).toEqual({
-      data: { ...data, settings: { monthlyBudgetMinor: null } }, recovered: true,
+      data: { ...data, settings: { monthlyBudgetMinor: null, stipendDay: null } }, recovered: true,
     });
   },
 );
@@ -49,4 +49,19 @@ it('accepts an explicitly cleared budget', () => {
 it('normalizes descriptions and discards unrecognized fields', () => {
   const result = parseStoredData(JSON.stringify({ ...data, expenses: [{ ...expense, description: ' '+ 'x'.repeat(201), unknown: true }] }));
   expect(result.data.expenses).toEqual([{ ...expense, description: 'x'.repeat(200) }]);
+});
+it.each([{}, { monthlyBudgetMinor: 500000 }, undefined])('loads legacy missing settings fields without a corruption warning', settings => {
+  const result = parseStoredData(JSON.stringify({ ...data, settings }));
+  expect(result.recovered).toBe(false);
+  expect(result.data.settings.stipendDay).toBeNull();
+  expect(result.data.expenses).toEqual([expense]);
+});
+it.each([null, 1, 31])('loads a valid stipend day %s', stipendDay => {
+  const stored = { ...data, settings: { ...data.settings, stipendDay } };
+  expect(parseStoredData(JSON.stringify(stored))).toEqual({ data: stored, recovered: false });
+});
+it.each([0, 32, 1.5, '20', {}, true])('recovers invalid stipend day %s without losing the budget', stipendDay => {
+  const result = parseStoredData(JSON.stringify({ ...data, settings: { ...data.settings, stipendDay } }));
+  expect(result.data.settings).toEqual({ monthlyBudgetMinor: 500000, stipendDay: null });
+  expect(result.recovered).toBe(true);
 });

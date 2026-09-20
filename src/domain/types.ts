@@ -11,7 +11,7 @@ export type Expense = {
 export type StoredData = {
   version: 1;
   expenses: Expense[];
-  settings: { monthlyBudgetMinor: number | null };
+  settings: { monthlyBudgetMinor: number | null; stipendDay: number | null };
 };
 export type ExpenseDraft = {
   amount: string;
