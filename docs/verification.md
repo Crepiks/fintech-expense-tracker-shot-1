@@ -61,7 +61,7 @@ Intentional differences from the prototypes:
 
 ## Limits and delivery
 
-The redesign is local work, not a new hosted deployment. The owner-only Sites demo linked in the README still runs an older revision. No push, PR merge, deployment, or audience change was performed for this task.
+The redesign is delivered through the feature branch and its pull request, not a new hosted deployment. The owner-only Sites demo linked in the README still runs an older revision. No PR merge, deployment, or audience change was performed for this task.
 
 These checks do not claim physical-phone, soft-keyboard, screen-reader, Firefox or independent Safari validation. Browser storage remains last-write-wins across tabs. Recording works after the app has loaded without network, but offline reload/install is not supported. The build remains a static application with no service worker or backend.
 
