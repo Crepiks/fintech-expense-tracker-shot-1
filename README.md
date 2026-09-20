@@ -28,11 +28,34 @@ Open the localhost URL printed by Vite, normally `http://127.0.0.1:5173`.
 ```sh
 npm test              # Full unit/component suite, enforcing 100% coverage
 npm run typecheck     # Strict TypeScript check, including tests
+npm run lint          # Check JavaScript/TypeScript and React Hooks correctness
+npm run lint:fix      # Apply safe automatic lint fixes
+npm run format        # Format supported project files with Prettier
+npm run format:check  # Check formatting without changing files
 npm run build         # TypeScript check and production files in dist/
 npm run preview       # Serve the production build locally
 ```
 
-`npm ci` installs the committed lockfile without updating dependencies. `npm run test:watch` runs tests during development. The GitHub Actions workflow reads the same `.nvmrc` and runs `npm ci`, `npm test`, and `npm run build` for feature/fix pushes and PRs to `trunk`.
+`npm ci` installs the committed lockfile without updating dependencies. `npm run test:watch` runs tests during development. The GitHub Actions workflow reads the same `.nvmrc` and runs `npm ci`, `npm run lint`, `npm run format:check`, `npm test`, and `npm run build` for feature/fix pushes and PRs to `trunk`.
+
+### Contributor workflow
+
+[Oxlint](https://oxc.rs/docs/guide/usage/linter.html) checks JavaScript/TypeScript correctness and React Hooks, including dependency arrays; warnings fail the check. It supports this project's TypeScript 7 stack without adding an incompatible typescript-eslint peer dependency. Strict type checking remains in `npm run typecheck` and `npm run build`. [Prettier](https://prettier.io/docs/install) handles formatting separately, using two spaces, semicolons, single quotes in JavaScript/TypeScript, and a 100-column target. Both tools are exact development dependencies recorded in the npm lockfile.
+
+Before committing, run:
+
+```sh
+npm run lint:fix
+npm run format
+npm run lint
+npm run format:check
+npm test
+npm run build
+```
+
+Review automatic fixes before committing. Configure your editor to use the project's installed Prettier and Oxlint versions and committed configuration. Prettier formats source, tests, CSS, HTML, JSON, YAML, and Markdown. Generated output, dependencies, local environment files, and the npm-managed lockfile are ignored. Both tools leave `.agents/skills/` and `.claude/skills/` unchanged to preserve mirrored upstream sources. After intentionally editing skills, verify the copies with `diff -r .agents/skills .claude/skills`.
+
+The Oxlint configuration has three file-specific React rule exceptions to preserve existing, tested behavior: `refs` in `useExpenses.ts` for the initial storage notice, `set-state-in-effect` in `BudgetCard.tsx` for synchronizing editable inputs with stored settings, and `immutability` in `CategoryDonut.tsx` for the cumulative offset calculated synchronously during rendering. These rules remain active elsewhere; Hooks ordering and dependency checks stay active in all three files. The app does not use React Compiler.
 
 As of 20 September 2026, the [official downloads page](https://nodejs.org/en/download/current) lists 24.21.0 as the latest LTS and 26.9.0 as the latest Current release. We choose LTS for its longer support lifecycle and because [Node.js recommends LTS for production applications](https://nodejs.org/en/about/previous-releases). The package's `>=22.12.0` engine range remains the minimum compatibility requirement; `.nvmrc` selects the exact development and CI runtime. Without nvm, install Node.js 24.21.0 directly before running the npm commands.
 
@@ -57,10 +80,10 @@ As of 20 September 2026, the [official downloads page](https://nodejs.org/en/dow
 
 Choose **Run validation scenario** in the footer. It executes the real reducer and calculation functions in memory and never reads or modifies your stored expenses. All ten checks should pass:
 
-| Operation | Total | Food | Transportation |
-| --- | ---: | ---: | ---: |
-| Add Food 1,500; Transportation 600; Food 900 | 3,000 | 2,400 | 600 |
-| Delete Food 900 | 2,100 | 1,500 | 600 |
+| Operation                                    | Total |  Food | Transportation |
+| -------------------------------------------- | ----: | ----: | -------------: |
+| Add Food 1,500; Transportation 600; Food 900 | 3,000 | 2,400 |            600 |
+| Delete Food 900                              | 2,100 | 1,500 |            600 |
 
 Each stage also verifies the record count and that category sums equal the total. Use **Run again** to repeat the scenario without closing it. To verify persistence yourself, enter the same three records in one month, reload, delete the 900 record, reload again, then switch months and back. Open a second tab on the exact same origin to check synchronization.
 
