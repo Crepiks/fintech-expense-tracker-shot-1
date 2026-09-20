@@ -1,12 +1,14 @@
 import { MAX_EXPENSES } from '../config';
 import type { Category } from '../domain/categories';
 import { applyRecurring } from '../domain/recurrence';
+import { prepareDemoData } from '../domain/demo';
 import type { Expense, RecurringCost, StoredData } from '../domain/types';
 
 export type ExpenseAction =
   | { type: 'add' | 'restore'; expense: Expense }
   | { type: 'update'; expense: Expense }
   | { type: 'importExpenses'; expenses: Expense[] }
+  | { type: 'loadDemo'; month: string; today: string }
   | { type: 'remove'; id: string }
   | { type: 'replaceAll'; data: StoredData }
   | { type: 'setBudget'; minor: number | null }
@@ -47,6 +49,9 @@ export function expensesReducer(state: StoredData, action: ExpenseAction): Store
     }
     case 'remove':
       return { ...state, expenses: state.expenses.filter((item) => item.id !== action.id) };
+    case 'loadDemo':
+      // A fresh snapshot also lets a repeated click retry a failed storage write.
+      return { ...prepareDemoData(state, action.month, action.today).data };
     case 'replaceAll':
       return action.data;
     case 'setStipendDay':

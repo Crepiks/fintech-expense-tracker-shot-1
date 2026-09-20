@@ -33,6 +33,21 @@ it('loads before persisting, including StrictMode remount effects', () => {
   expect(result.current.expenses).toEqual([expense]);
   expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!)).toEqual(data);
 });
+it('merges demo actions against the latest state when updates are batched', () => {
+  const { result } = renderHook(useExpenses, { wrapper: StrictMode });
+  act(() => {
+    result.current.add(expense);
+    result.current.setBudget(250000);
+    result.current.loadDemo('2026-09', '2026-09-19');
+    result.current.loadDemo('2026-09', '2026-09-19');
+  });
+  expect(result.current.expenses).toContainEqual(expense);
+  expect(result.current.settings.monthlyBudgetMinor).toBe(250000);
+  expect(new Set(result.current.expenses.map((item) => item.id)).size).toBe(
+    result.current.expenses.length,
+  );
+  expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).expenses).toEqual(result.current.expenses);
+});
 it('persists add, remove, restore and budget changes across remounts', () => {
   const { result, unmount } = renderHook(useExpenses);
   act(() => result.current.add(expense));

@@ -1,6 +1,7 @@
 @import './styles/base.css';
 @import './styles/controls.css';
 @import './styles/forms.css';
+@import './styles/settings.css';
 @import './styles/desktop.css';
 @import './styles/calendar.css';
 @import './styles/calendar-tablet.css';

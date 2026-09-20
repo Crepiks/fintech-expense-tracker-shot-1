@@ -21,6 +21,7 @@ import { Modal } from './components/Modal';
 import { UndoToast } from './components/UndoToast';
 import { JudgeMode } from './components/JudgeMode';
 import { BudgetCard } from './components/BudgetCard';
+import { DemoDataCard } from './components/DemoDataCard';
 
 function newExpense(value: ExpenseValue): Expense {
   return {
@@ -301,6 +302,11 @@ export default function App() {
           <p className="empty-note">
             Your data stays in this browser. No account or bank connection.
           </p>
+          <DemoDataCard
+            month={selectedMonth}
+            onLoad={() => store.loadDemo(selectedMonth, today)}
+            storageNotice={storageNotice}
+          />
           <BudgetCard
             budgetMinor={settings.monthlyBudgetMinor}
             spentMinor={spent}
