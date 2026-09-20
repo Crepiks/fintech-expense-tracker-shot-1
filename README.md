@@ -12,12 +12,14 @@ Small purchases are easy to lose track of, and spreadsheets take effort to maint
 
 ## Launch
 
-Requires **Node.js 22.12+** and npm; verified with Node.js **22.22.0**. No API keys, accounts, or environment variables are needed.
+Use **Node.js 24.21.0 LTS**, pinned in [`.nvmrc`](.nvmrc), and its bundled npm. With [nvm](https://github.com/nvm-sh/nvm) installed, run the commands below. No API keys, accounts, or environment variables are needed.
 
 ```sh
 git clone https://github.com/Crepiks/fintech-expense-tracker-shot-1.git
 cd fintech-expense-tracker-shot-1
-npm install
+nvm install
+nvm use
+npm ci
 npm run dev
 ```
 
@@ -30,7 +32,9 @@ npm run build         # TypeScript check and production files in dist/
 npm run preview       # Serve the production build locally
 ```
 
-For a reproducible installation, use `npm ci`. `npm run test:watch` runs tests during development. The GitHub Actions workflow runs `npm ci`, `npm test`, and `npm run build` for feature/fix pushes and PRs to `trunk`.
+`npm ci` installs the committed lockfile without updating dependencies. `npm run test:watch` runs tests during development. The GitHub Actions workflow reads the same `.nvmrc` and runs `npm ci`, `npm test`, and `npm run build` for feature/fix pushes and PRs to `trunk`.
+
+As of 20 September 2026, the [official downloads page](https://nodejs.org/en/download/current) lists 24.21.0 as the latest LTS and 26.9.0 as the latest Current release. We choose LTS for its longer support lifecycle and because [Node.js recommends LTS for production applications](https://nodejs.org/en/about/previous-releases). The package's `>=22.12.0` engine range remains the minimum compatibility requirement; `.nvmrc` selects the exact development and CI runtime. Without nvm, install Node.js 24.21.0 directly before running the npm commands.
 
 ## Implemented features
 

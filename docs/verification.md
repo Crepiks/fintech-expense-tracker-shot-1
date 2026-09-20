@@ -1,6 +1,25 @@
 # Verification evidence
 
-Verified locally on 2026-09-20 with Node.js 22.22.0. These results cover the add-ons branch and the existing core together.
+## Base-branch integration — 20 September 2026
+
+Merged trunk revision `8096c18` into the add-ons branch. Documentation conflicts were resolved by retaining the pinned Node.js setup and the add-on verification history. No application source or dependency lockfile changed during conflict resolution.
+
+Using `nvm use` selected Node.js **24.21.0** and npm **11.19.0**. `npm ci --engine-strict --no-audit --no-fund`, `npm test`, `npm run typecheck`, and `npm run build` passed. All **211 tests in 19 files** passed with **100% lines (314/314), branches (245/245), statements (369/369), and functions (113/113)**. npm emitted a non-blocking install-script notice for optional `fsevents`; installation and all checks completed successfully. `diff -r .agents/skills .claude/skills` confirmed identical shared skill copies.
+
+The browser checks and deployment below remain evidence for the unchanged application revision; they were not repeated for this documentation/runtime merge.
+
+## Historical Node.js runtime pin — 20 September 2026
+
+The runtime configuration change was verified on macOS arm64 using Node.js **24.21.0** and bundled npm **11.19.0**, selected by `nvm use` from `.nvmrc`. The official binary checksum matched during `nvm install`. Application code and the dependency lockfile were unchanged from trunk revision `4469c29`.
+
+- A fresh `npm ci --engine-strict --cache /tmp/pocket-ledger-node24-npm-cache --no-audit --no-fund --fetch-retries=0` installed all locked dependencies with no engine incompatibilities. The first sandboxed attempt encountered DNS restrictions; the network-enabled retry succeeded.
+- `npm test` passed all **174 tests in 18 files**, including the existing user-flow integration tests. Coverage remained **100%**: 283/283 lines, 188/188 branches, 333/333 statements, and 102/102 functions, with the existing per-file thresholds enforced.
+- `npm run typecheck` and `npm run build` passed.
+- GitHub Actions was updated to read `.nvmrc` through `node-version-file`. These results describe the runtime-pin change before integration with the add-ons.
+
+## Add-ons verification — 20 September 2026
+
+Verified locally with Node.js 22.22.0 before integrating the runtime pin. These results cover the add-ons branch and the existing core together.
 
 ## Automated checks
 
