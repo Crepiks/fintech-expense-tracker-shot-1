@@ -1,0 +1,256 @@
+@media (width >= 900px) {
+  .budget-page {
+    flex-direction: column;
+    min-height: calc(100dvh - 72px);
+    display: flex;
+  }
+
+  .monthly-limit {
+    align-items: center;
+    gap: 10px;
+    display: flex;
+  }
+
+  .monthly-limit input {
+    background: #fff;
+    width: 120px;
+    height: 40px;
+    font-size: 15px;
+  }
+
+  .budget-top, .budget-bottom {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 16px;
+    display: grid;
+  }
+
+  .budget-top {
+    min-height: 276px;
+  }
+
+  .chart-panel {
+    border: 1px solid var(--border);
+    background: #fff;
+    border-radius: 12px;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+    padding: 18px 20px;
+    display: flex !important;
+  }
+
+  .chart-panel > .spend-chart {
+    flex: 1;
+  }
+
+  .chart-legend {
+    font: 400 12px var(--mono);
+    color: #3e444e;
+    gap: 16px;
+    display: flex;
+  }
+
+  .chart-legend > span:first-child {
+    color: var(--blue);
+  }
+
+  .chart-panel .section-heading {
+    gap: 8px;
+  }
+
+  .chart-panel h2 {
+    font-size: 10px;
+  }
+
+  .forecast-panel {
+    border-radius: 12px;
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .forecast-heading .eyebrow {
+    font-size: 11px;
+  }
+
+  .forecast-heading > div {
+    gap: 12px;
+  }
+
+  .forecast-amount {
+    font-size: 36px;
+  }
+
+  .forecast-badge {
+    display: none;
+  }
+
+  .forecast-copy {
+    color: #d5d9e0;
+    font: 400 14px / 1.6 Geist, system-ui, sans-serif;
+    display: block;
+  }
+
+  .forecast-copy span {
+    font-family: var(--mono);
+    color: #fff;
+  }
+
+  .forecast-copy .positive {
+    color: #9fe0c0;
+  }
+
+  .forecast-copy .danger {
+    color: #ffb4a7;
+  }
+
+  .forecast-details {
+    font: 400 12px var(--mono);
+    color: #a9b0bb;
+    flex-direction: column;
+    gap: 8px;
+    margin: auto 0 0;
+    display: flex;
+  }
+
+  .forecast-details div {
+    justify-content: space-between;
+    gap: 10px;
+    display: flex;
+  }
+
+  .forecast-details dd {
+    color: #fff;
+    margin: 0;
+  }
+
+  .budget-bottom {
+    flex: 1;
+    min-height: 350px;
+    margin-top: 18px;
+  }
+
+  .category-limits {
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .budget-columns {
+    grid-template-columns: 112px minmax(80px, 1fr) 84px 100px 55px;
+    align-items: center;
+    gap: 12px;
+    min-height: 48px;
+    padding: 0 20px;
+    font-size: 12px;
+    display: grid !important;
+  }
+
+  .budget-column-heading {
+    border-bottom: 1px solid var(--border);
+    background: #fafbfc;
+    min-height: 40px;
+    font-size: 10px;
+  }
+
+  .budget-column-heading > span:nth-child(n+3) {
+    text-align: right;
+  }
+
+  .category-housing {
+    border-top: 0;
+    border-bottom: 1px solid #eef0f3;
+    order: 0;
+  }
+
+  .category-budget .track {
+    grid-area: auto;
+    height: 8px;
+  }
+
+  .category-budget .category-spent {
+    text-align: right;
+    font-size: 13px;
+  }
+
+  .category-budget .limit-input {
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-end;
+    display: flex;
+  }
+
+  .category-budget .limit-input input {
+    width: 96px;
+  }
+
+  .category-status {
+    text-align: right;
+    font-size: 10px;
+  }
+
+  .fixed-costs {
+    border-radius: 12px;
+    margin: 0;
+    padding: 18px 20px;
+  }
+
+  .fixed-costs > .empty-note {
+    margin-top: auto;
+    font-size: 12px;
+  }
+
+  .budget-footer {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .budget-footer > .empty-note {
+    opacity: 0;
+  }
+
+  .budget-footer .month-switcher {
+    margin-left: auto;
+  }
+}
+
+@media (width >= 900px) and (width <= 1150px) {
+  .budget-top, .budget-bottom {
+    grid-template-columns: minmax(0, 1fr) 270px;
+  }
+
+  .budget-columns {
+    grid-template-columns: 100px minmax(40px, 1fr) 76px 72px 45px;
+    gap: 8px;
+    padding: 0 14px;
+    font-size: 11px;
+  }
+
+  .category-budget .limit-input input {
+    width: 72px;
+  }
+
+  .chart-legend {
+    gap: 8px;
+    font-size: 10px;
+  }
+
+  .forecast-amount {
+    font-size: 30px;
+  }
+
+  .fixed-cost {
+    flex-wrap: wrap;
+  }
+
+  .budget-column-heading > span:nth-child(2) {
+    font-size: 8px;
+  }
+}
+
+@media (width >= 900px) {
+  .chart-panel > .spend-chart {
+    flex: none;
+    height: 230px;
+  }
+}

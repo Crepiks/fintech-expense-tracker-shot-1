@@ -22,4 +22,3 @@ export function computeTotals(expenses: Expense[]) {
   const categorySum = Object.values(byCategory).reduce((sum, amount) => sum + amount, 0);
   return { totalMinor, byCategory, invariantOk: categorySum === totalMinor };
 }
-export type TotalsData = ReturnType<typeof computeTotals>;

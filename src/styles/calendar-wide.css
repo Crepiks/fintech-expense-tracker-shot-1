@@ -1,0 +1,95 @@
+@media (width >= 1200px) {
+  .calendar-layout {
+    grid-template-columns: minmax(0, 1fr) 380px;
+  }
+
+  .calendar-main {
+    padding: 24px 32px;
+  }
+
+  .calendar-sidebar {
+    padding: 24px 28px;
+  }
+
+  .calendar-title h1 {
+    font-size: 30px;
+  }
+
+  .calendar-title .icon-button {
+    width: 44px;
+  }
+
+  .calendar-stats strong {
+    font-size: 22px;
+  }
+
+  .calendar-stats > div {
+    padding: 14px 16px;
+  }
+
+  .calendar-grid, .calendar-weekdays {
+    grid-template-columns: repeat(7, minmax(0, 1fr)) 84px;
+  }
+
+  .day-bottom {
+    font-size: 15px;
+  }
+
+  .day-top small {
+    font-size: 9px;
+  }
+
+  .week-total {
+    font-size: 14px;
+  }
+
+  .category-line {
+    font-size: 13px;
+  }
+}
+
+@media (width >= 900px) and (width <= 1199px) {
+  .calendar-heading {
+    flex-wrap: wrap;
+  }
+
+  .calendar-title {
+    flex: 1;
+  }
+
+  .calendar-grid-wrap {
+    min-height: 450px;
+  }
+
+  .period-picker {
+    margin-left: auto;
+  }
+
+  .calendar-stats {
+    gap: 8px;
+  }
+
+  .calendar-stats strong {
+    font-size: 17px;
+  }
+
+  .calendar-stats .eyebrow {
+    font-size: 9px;
+  }
+
+  .day-top small {
+    display: none;
+  }
+}
+
+@media (width >= 900px) {
+  .calendar-stats > .desktop-only {
+    display: flex !important;
+  }
+
+  .day-bottom > .desktop-only {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+}

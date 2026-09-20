@@ -1,0 +1,265 @@
+@media (width >= 900px) {
+  .calendar-layout {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    min-height: calc(100dvh - 72px);
+    display: grid;
+  }
+
+  .calendar-main {
+    flex-direction: column;
+    min-width: 0;
+    padding: 24px 28px;
+    display: flex;
+  }
+
+  .calendar-heading {
+    gap: 14px;
+  }
+
+  .calendar-title {
+    gap: 12px;
+    width: auto;
+    display: flex;
+  }
+
+  .calendar-title > div {
+    flex-direction: column;
+  }
+
+  .calendar-title h1 {
+    font-size: 28px;
+  }
+
+  .calendar-title .eyebrow {
+    font-size: 11px;
+  }
+
+  .calendar-title .icon-button {
+    width: 36px;
+  }
+
+  .period-picker {
+    background: #e9ebef;
+    border-radius: 10px;
+    gap: 4px;
+    padding: 4px;
+    display: flex;
+  }
+
+  .period-picker button {
+    height: 36px;
+    font: 500 12px var(--mono);
+    color: #3e444e;
+    background: none;
+    border: 0;
+    border-radius: 7px;
+    padding: 0 10px;
+  }
+
+  .period-picker button[aria-pressed="true"] {
+    background: #fff;
+    box-shadow: 0 1px 2px #13161b14;
+  }
+
+  .calendar-stats {
+    background: none;
+    border: 0;
+    border-radius: 0;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0 0 18px;
+    overflow: visible;
+  }
+
+  .calendar-stats > div {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    gap: 6px;
+    padding: 14px 12px;
+  }
+
+  .calendar-stats strong {
+    font-size: 20px;
+  }
+
+  .calendar-stats small {
+    font-size: 11px;
+    display: block;
+  }
+
+  .calendar-grid-wrap {
+    flex-direction: column;
+    flex: 1;
+    gap: 8px;
+    min-height: 480px;
+    display: flex;
+  }
+
+  .calendar-weekdays, .calendar-grid {
+    grid-template-columns: repeat(7, minmax(0, 1fr)) 72px;
+    gap: 8px;
+  }
+
+  .calendar-weekdays {
+    text-align: left;
+    margin: 0;
+    padding: 0 4px;
+    font-size: 11px;
+  }
+
+  .calendar-grid {
+    flex: 1;
+    grid-auto-rows: minmax(90px, 1fr);
+  }
+
+  .calendar-day {
+    text-align: left;
+    border-radius: 12px;
+    padding: 10px 9px;
+    font-size: 13px;
+  }
+
+  .day-top {
+    justify-content: space-between;
+    align-items: center;
+    display: flex;
+  }
+
+  .day-top small {
+    font: 600 8px var(--mono);
+    display: block;
+  }
+
+  .day-bottom {
+    font: 500 13px var(--mono);
+    letter-spacing: -.03em;
+    flex-direction: column;
+    gap: 6px;
+    display: flex;
+  }
+
+  .day-dots {
+    gap: 3px;
+    display: flex;
+  }
+
+  .day-dots i {
+    border-radius: 50%;
+    width: 7px;
+    height: 7px;
+  }
+
+  .calendar-pad {
+    justify-content: flex-start;
+    padding: 10px 11px;
+  }
+
+  .week-total {
+    font: 500 12px var(--mono);
+    border-left: 1px dashed #d9dce2;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 5px;
+    padding-right: 4px;
+    display: flex;
+  }
+
+  .week-total > span {
+    font: 400 11px var(--mono);
+    color: var(--muted);
+  }
+
+  .calendar-weekdays .week-total {
+    text-align: right;
+    border: 0;
+    display: block;
+  }
+
+  .calendar-legend {
+    font: 400 11px var(--mono);
+    color: var(--muted);
+    justify-content: flex-end;
+    align-items: center;
+    gap: 7px;
+    margin-top: 3px;
+    display: flex;
+  }
+
+  .calendar-legend i {
+    border-radius: 3px;
+    width: 18px;
+    height: 12px;
+  }
+
+  .calendar-legend .shade-0 {
+    border: 1px solid #d9dce2;
+  }
+
+  .calendar-legend .fixed-day {
+    margin-left: 10px;
+  }
+
+  .calendar-sidebar {
+    border-left: 1px solid var(--border);
+    background: #fff;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px;
+    display: flex;
+  }
+
+  .selected-day {
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+  }
+
+  .day-summary {
+    border: 0;
+    padding: 0 0 12px;
+  }
+
+  .day-summary h2 {
+    font-size: 32px;
+  }
+
+  .month-categories {
+    display: block;
+  }
+
+  .calendar-sidebar .expense-row {
+    min-height: 54px;
+  }
+
+  .calendar-sidebar .expense-note .tag {
+    font-size: 12px;
+  }
+
+  .calendar-sidebar .expense-row > strong {
+    font-size: 15px;
+  }
+
+  .year-grid {
+    flex: 1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .year-grid button {
+    justify-content: center;
+  }
+
+  .week-view .calendar-grid {
+    flex: 0;
+    grid-auto-rows: 200px;
+  }
+
+  .week-view .week-day-label {
+    font-size: 9px;
+    display: block;
+  }
+
+  .category-line {
+    font-size: 12px;
+  }
+}

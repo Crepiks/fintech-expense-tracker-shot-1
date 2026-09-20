@@ -4,8 +4,8 @@ import { computeBudget, nextStipend } from '../domain/budget';
 import { formatDate, formatMonth } from '../domain/calendar';
 import { formatAmount, parseAmount } from '../domain/money';
 
-type Props = { budgetMinor: number | null; spentMinor: number; month: string; today: string; onSave: (minor: number | null) => void; stipendDay: number | null; onStipendSave: (day: number | null) => void };
-export function BudgetCard({ budgetMinor, spentMinor, month, today, onSave, stipendDay, onStipendSave }: Props) {
+type Props = { budgetMinor: number | null; spentMinor: number; reservedMinor?: number; month: string; today: string; onSave: (minor: number | null) => void; stipendDay: number | null; onStipendSave: (day: number | null) => void };
+export function BudgetCard({ budgetMinor, spentMinor, reservedMinor = 0, month, today, onSave, stipendDay, onStipendSave }: Props) {
   const [editing, setEditing] = useState(false);
   const [stipendInput, setStipendInput] = useState('');
   const [stipendError, setStipendError] = useState('');
@@ -15,7 +15,7 @@ export function BudgetCard({ budgetMinor, spentMinor, month, today, onSave, stip
   useEffect(() => { setInput(budgetMinor === null ? '' : formatAmount(budgetMinor)); }, [budgetMinor]);
   useEffect(() => { setStipendInput(stipendDay === null ? '' : String(stipendDay)); }, [stipendDay]);
   const stipend = stipendDay === null ? null : nextStipend(today, stipendDay);
-  const budget = computeBudget(budgetMinor, spentMinor, month, today);
+  const budget = computeBudget(budgetMinor, spentMinor, month, today, reservedMinor);
 
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -49,7 +49,7 @@ export function BudgetCard({ budgetMinor, spentMinor, month, today, onSave, stip
         <span className={budget.overBudget ? 'over-budget' : budget.pctUsed >= 80 ? 'budget-warning' : ''} style={{ width: `${budget.progress}%` }} />
       </div>
       <p className="budget-help">{Math.round(budget.pctUsed)}% used</p>
-      {budget.remainingMinor > 0 && budget.safePerDayMinor !== null && <div className="daily-budget">
+      {budget.remainingMinor > reservedMinor && budget.safePerDayMinor !== null && <div className="daily-budget">
         <p>Safe to spend today: {CURRENCY} {formatAmount(budget.safePerDayMinor)}</p>
         <span>Across {budget.daysLeft} days, including today.</span>
       </div>}

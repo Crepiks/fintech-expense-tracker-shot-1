@@ -64,3 +64,12 @@ it('moves focus to category then date when they alone are invalid', async () => 
   await user.click(screen.getByRole('button', { name: 'Add an expense' }));
   expect(screen.getByLabelText('Date')).toHaveFocus();
 });
+
+it('starts on the selected date while comparing future warnings with today', () => {
+  render(<ExpenseForm today="2026-09-20" initialDate="2026-10-01" selectedMonth="2026-10" onAdd={vi.fn()} onMonthChange={vi.fn()} canAdd />);
+  const date = screen.getByLabelText('Date');
+  expect(date).toHaveValue('2026-10-01');
+  expect(screen.getByText('This date is in the future.')).toBeInTheDocument();
+  fireEvent.change(date, { target: { value: '2026-09-20' } });
+  expect(screen.queryByText('This date is in the future.')).not.toBeInTheDocument();
+});

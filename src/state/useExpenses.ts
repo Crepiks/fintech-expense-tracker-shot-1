@@ -1,5 +1,6 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
-import type { Expense } from '../domain/types';
+import type { Category } from '../domain/categories';
+import type { Expense, RecurringCost } from '../domain/types';
 import { load, save, subscribe } from '../storage/storage';
 import { expensesReducer } from './reducer';
 
@@ -36,10 +37,16 @@ export function useExpenses() {
     expenses: state.expenses,
     settings: state.settings,
     add: (expense: Expense) => dispatch({ type: 'add', expense }),
+    update: (expense: Expense) => dispatch({ type: 'update', expense }),
+    importExpenses: (expenses: Expense[]) => dispatch({ type: 'importExpenses', expenses }),
     remove: (id: string) => dispatch({ type: 'remove', id }),
     restore: (expense: Expense) => dispatch({ type: 'restore', expense }),
     setBudget: (minor: number | null) => dispatch({ type: 'setBudget', minor }),
     setStipendDay: (day: number | null) => dispatch({ type: 'setStipendDay', day }),
+    setCategoryLimit: (category: Category, minor: number | null) => dispatch({ type: 'setCategoryLimit', category, minor }),
+    addRecurring: (cost: RecurringCost) => dispatch({ type: 'addRecurring', cost }),
+    removeRecurring: (id: string) => dispatch({ type: 'removeRecurring', id }),
+    applyRecurring: (today: string) => dispatch({ type: 'applyRecurring', today }),
     storageNotice,
   };
 }
