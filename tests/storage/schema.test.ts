@@ -65,3 +65,58 @@ it.each([0, 32, 1.5, '20', {}, true])('recovers invalid stipend day %s without l
   expect(result.data.settings).toEqual({ monthlyBudgetMinor: 500000, stipendDay: null });
   expect(result.recovered).toBe(true);
 });
+
+const rule = { id: 'rent', description: 'Rent', amountMinor: 80000, category: 'Housing', day: 31, startDate: '2026-01-01', lastAppliedMonth: null };
+
+it('round-trips optional fixed metadata, category limits and recurring costs', () => {
+  const extended = { ...data, expenses: [{ ...expense, fixed: true, recurringId: 'rent' }, { ...expense, id: 'two', fixed: false }],
+    settings: { ...data.settings, categoryLimits: { Food: 20000, Other: 1 }, recurring: [rule, { ...rule, id: 'gym', lastAppliedMonth: '2026-02' }] } };
+  expect(parseStoredData(JSON.stringify(extended))).toEqual({ data: extended, recovered: false });
+});
+
+it.each([{ fixed: 'yes' }, { fixed: null }, { recurringId: 3 }, { recurringId: '' }, { recurringId: ' ' }])('rejects invalid expense metadata %s', fields => {
+  const result = parseStoredData(JSON.stringify({ ...data, expenses: [{ ...expense, ...fields }] }));
+  expect(result.data.expenses).toEqual([]);
+  expect(result.recovered).toBe(true);
+});
+
+it.each([null, [], 4, 'bad'])('recovers invalid category limits %s', categoryLimits => {
+  const result = parseStoredData(JSON.stringify({ ...data, settings: { ...data.settings, categoryLimits } }));
+  expect(result).toEqual({ data, recovered: true });
+});
+
+it('retains valid limits when other limits are invalid', () => {
+  const result = parseStoredData(JSON.stringify({ ...data, settings: { ...data.settings, categoryLimits: { Food: 20000, Bad: 1, Fun: 0, Health: '20' } } }));
+  expect(result.data.settings.categoryLimits).toEqual({ Food: 20000 });
+  expect(result.recovered).toBe(true);
+});
+
+it.each([null, {}, 'bad'])('recovers malformed recurring collection %s', recurring => {
+  expect(parseStoredData(JSON.stringify({ ...data, settings: { ...data.settings, recurring } }))).toEqual({ data, recovered: true });
+});
+
+it.each([
+  null, [], {}, { ...rule, id: 1 }, { ...rule, id: '' }, { ...rule, description: null }, { ...rule, description: ' ' },
+  { ...rule, amountMinor: 0 }, { ...rule, category: 'bad' }, { ...rule, day: '1' }, { ...rule, day: 1.5 },
+  { ...rule, day: 0 }, { ...rule, day: 32 }, { ...rule, startDate: 1 }, { ...rule, startDate: '2026-02-30' },
+  { ...rule, lastAppliedMonth: undefined }, { ...rule, lastAppliedMonth: 2 }, { ...rule, lastAppliedMonth: '2026-13' },
+  { ...rule, lastAppliedMonth: 'bad' },
+])('drops malformed recurring rules while retaining usable rules', invalid => {
+  const result = parseStoredData(JSON.stringify({ ...data, settings: { ...data.settings, recurring: [invalid, rule] } }));
+  expect(result.data.settings.recurring).toEqual([rule]);
+  expect(result.recovered).toBe(true);
+});
+
+it('normalizes recurring descriptions and discards unknown fields', () => {
+  const result = parseStoredData(JSON.stringify({ ...empty, settings: { recurring: [{ ...rule, description: ' '+ 'x'.repeat(201), unknown: true }] } }));
+  expect(result.data.settings.recurring).toEqual([{ ...rule, description: 'x'.repeat(200) }]);
+  expect(result.recovered).toBe(false);
+});
+
+it('drops duplicate and excessive recurring rules without losing valid rules', () => {
+  const recurring = [rule, rule, ...Array.from({ length: 10000 }, (_, i) => ({ ...rule, id: String(i) }))];
+  const result = parseStoredData(JSON.stringify({ ...empty, settings: { recurring } }));
+  expect(result.data.settings.recurring).toHaveLength(10000);
+  expect(result.data.settings.recurring?.at(-1)?.id).toBe('9998');
+  expect(result.recovered).toBe(true);
+});

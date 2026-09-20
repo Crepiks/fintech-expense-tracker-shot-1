@@ -1,7 +1,7 @@
 import { monthKey } from './calc';
 
-/** Divide remaining minor units across calendar days, including today. */
-export function computeBudget(budgetMinor: number | null, spentMinor: number, month: string, today: string) {
+/** Reserve pending fixed costs, then divide available minor units including today. */
+export function computeBudget(budgetMinor: number | null, spentMinor: number, month: string, today: string, reservedMinor = 0) {
   if (budgetMinor === null) return null;
   const remainingMinor = budgetMinor - spentMinor;
   let daysLeft: number | null = null;
@@ -11,7 +11,7 @@ export function computeBudget(budgetMinor: number | null, spentMinor: number, mo
     const endOfMonth = new Date(0);
     endOfMonth.setFullYear(year, number, 0);
     daysLeft = endOfMonth.getDate() - day + 1;
-    safePerDayMinor = Math.max(0, Math.floor(remainingMinor / daysLeft));
+    safePerDayMinor = Math.max(0, Math.floor((remainingMinor - reservedMinor) / daysLeft));
   }
   return {
     remainingMinor, overBudget: remainingMinor < 0,
