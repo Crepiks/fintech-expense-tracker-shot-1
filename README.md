@@ -8,6 +8,8 @@ Small purchases are easy to lose track of, and spreadsheets take effort to maint
 
 [Phone layout](docs/screenshots/mobile.png). Screenshots use synthetic example records; a new browser starts empty.
 
+[Deployed demo — owner-only access](https://pocket-ledger-expenses.crepiks.chatgpt.site). Access is intentionally limited to the owner.
+
 ## Launch
 
 Requires **Node.js 22.12+** and npm; verified with Node.js **22.22.0**. No API keys, accounts, or environment variables are needed.
@@ -98,7 +100,7 @@ The single currency is defined by `CURRENCY` in `src/config.ts`. Changing it cha
 
 The production build uses Vite `base: './'`, so static assets resolve from the deployed path. Any static HTTPS host can serve `dist/`. `.openai/hosting.json` configures this project’s Sites deployment as static-only.
 
-The configured Sites project currently has owner-only access. Public audience expansion was blocked by automatic approval review and requires explicit authorization; no public demo is claimed.
+Sites deployment succeeded for application revision `330260a`. The link above intentionally has owner-only access, as requested. It is not an anonymous judge-facing demo; reviewers without owner access can run the README commands locally. No anonymous public-browser verification is claimed.
 
 Serve the build through `npm run build && npm run preview` or an HTTPS static host. Double-clicking `dist/index.html` is not supported because browsers restrict ES modules on `file://`. No single-file plugin or service worker is included.
 

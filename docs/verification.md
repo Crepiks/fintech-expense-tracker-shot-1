@@ -4,7 +4,7 @@ Verified locally on 2026-09-20 with Node.js 22.22.0. These results cover the add
 
 ## Automated checks
 
-- `npm ci`: clean dependency installation succeeded; no new dependencies were added.
+- `npm ci`: dependency installation succeeded; no new dependencies were added. A fresh clone of the published `feat/expense-addons` branch in a separate temporary directory also passed `npm ci`, `npm test` (211 tests, 100% coverage), and `npm run build`. This was on the same machine.
 - `npm test`: **211 tests passed across 19 files**. V8 reports **100% lines (314/314), branches (245/245), statements (369/369), and functions (113/113)**. Per-file thresholds remain 100%; only the React mounting entry point is excluded with its existing explanation.
 - `npm run typecheck` and `npm run build`: passed. Vite emits relative static assets in `dist/`.
 - An independent read-only review found no actionable code issues and independently ran the same passing coverage suite.
@@ -29,4 +29,6 @@ Used bundled Playwright with a fresh, isolated Chrome 153.0.8010.52 context agai
 
 These are local results, not a claim of validation on another physical machine. Firefox, Safari, old browsers, screen readers, and physical phones were not separately tested. Storage failure, clock rollover, and legacy migration use deterministic unit tests. Simultaneous tab edits still follow last-write-wins.
 
-The Sites project currently has owner-only access. Automatic approval review rejected public audience expansion as requiring explicit authorization for that exact access change. A public URL and anonymous-browser check are not claimed. Deployment and CI results are reported separately from local checks.
+Sites reported a successful owner-only deployment of application revision `330260a` at [Pocket Ledger](https://pocket-ledger-expenses.crepiks.chatgpt.site). The final follow-up documentation change does not alter its built assets. The owner explicitly chose to keep the Site owner-only after automatic approval review blocked audience expansion. Public access is outside the final delivery scope; anonymous public-browser verification is not claimed.
+
+GitHub Actions `test-and-build` passed for application revision `330260a` on [PR #6](https://github.com/Crepiks/fintech-expense-tracker-shot-1/pull/6). A recognizable credential-pattern scan of tracked history found no matches; this is a hygiene check, not a security audit. No application TypeScript file exceeds 300 lines.
