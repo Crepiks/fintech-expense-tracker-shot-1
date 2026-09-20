@@ -44,6 +44,19 @@ it('clearly shows overspending instead of a negative daily allowance', () => {
   expect(screen.getByText('Over by USD 1,000')).toBeInTheDocument();
   expect(screen.queryByText(/Safe to spend today/)).not.toBeInTheDocument();
 });
+
+it('reserves pending costs for daily guidance while showing the full recorded balance', () => {
+  render(<BudgetCard {...base} today="2026-09-20" spentMinor={0} budgetMinor={61000} reservedMinor={50000} />);
+  expect(screen.getByLabelText('Budget remaining')).toHaveTextContent('USD 610');
+  expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
+  expect(screen.getByText('Safe to spend today: USD 10')).toBeInTheDocument();
+});
+
+it('hides spendable guidance when pending costs exceed the remaining budget', () => {
+  render(<BudgetCard {...base} today="2026-09-20" spentMinor={0} budgetMinor={40000} reservedMinor={50000} />);
+  expect(screen.getByLabelText('Budget remaining')).toHaveTextContent('USD 400');
+  expect(screen.queryByText(/Safe to spend today/)).not.toBeInTheDocument();
+});
 it('omits current-day guidance for historical months and accepts synced budgets', () => {
   const { rerender } = render(<BudgetCard {...base} month="2026-08" budgetMinor={500000} />);
   expect(screen.queryByText(/Safe to spend today/)).not.toBeInTheDocument();

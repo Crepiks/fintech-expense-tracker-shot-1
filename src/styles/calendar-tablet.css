@@ -1,0 +1,44 @@
+@media (width <= 359px) {
+  .calendar-stats > div {
+    padding: 9px 8px;
+  }
+
+  .calendar-stats strong {
+    font-size: 14px;
+  }
+
+  .calendar-title .eyebrow {
+    font-size: 9px;
+  }
+
+  .day-summary > span {
+    font-size: 10px;
+  }
+
+  .calendar-day {
+    border-radius: 8px;
+  }
+}
+
+@media (width >= 600px) and (width <= 899px) {
+  .calendar-grid {
+    grid-auto-rows: 70px;
+  }
+
+  .calendar-day {
+    padding: 10px;
+  }
+
+  .calendar-stats strong {
+    font-size: 22px;
+  }
+
+  .calendar-sidebar {
+    max-width: 650px;
+    margin: auto;
+  }
+
+  .calendar-main {
+    padding-top: 32px;
+  }
+}

@@ -1,18 +1,18 @@
 # Pocket Ledger
 
-A private, local-only expense tracker for people who want a clearer view of everyday spending. Record an expense, see where the month’s money went, and compare it with a simple monthly budget.
+A private expense tracker for people who want to see where their everyday money goes. A spending calendar, searchable ledger, and budget forecast share one set of records, stored in your browser.
 
-Small purchases are easy to lose track of, and spreadsheets take effort to maintain. Pocket Ledger makes the daily entry quick and keeps every total derived from the same monthly records, so adding or deleting an expense updates the whole picture immediately.
+Small purchases are easy to lose track of; maintaining a spreadsheet takes work. Pocket Ledger lets you type an expense like a note, inspect spending by day, and plan around fixed costs without connecting a bank account.
 
-![Pocket Ledger with sample expenses and a monthly budget](docs/screenshots/desktop.png)
+![Pocket Ledger calendar on desktop](docs/screenshots/desktop.png)
 
-[Phone layout](docs/screenshots/mobile.png). Screenshots use synthetic example records; a new browser starts empty.
+[Mobile calendar](docs/screenshots/mobile.png) · [Ledger](docs/screenshots/ledger.png) · [Budget](docs/screenshots/budget.png) · [Command bar](docs/screenshots/command.png) · [Mobile Add](docs/screenshots/add-mobile.png). Screenshots contain synthetic reference records. New browser storage starts empty.
 
-[Deployed demo — owner-only access](https://pocket-ledger-expenses.crepiks.chatgpt.site). Access is intentionally limited to the owner.
+[Previously deployed demo — owner-only access](https://pocket-ledger-expenses.crepiks.chatgpt.site). **The redesign in this branch has not been deployed.** Run it locally using the commands below; the hosted demo is an older revision.
 
-## Launch
+## Run locally
 
-Use **Node.js 24.21.0 LTS**, pinned in [`.nvmrc`](.nvmrc), and its bundled npm. With [nvm](https://github.com/nvm-sh/nvm) installed, run the commands below. No API keys, accounts, or environment variables are needed.
+Use Node.js **24.21.0**, pinned in [`.nvmrc`](.nvmrc). No API keys, account, or environment variables are required.
 
 ```sh
 git clone https://github.com/Crepiks/fintech-expense-tracker-shot-1.git
@@ -23,106 +23,130 @@ npm ci
 npm run dev
 ```
 
-Open the localhost URL printed by Vite, normally `http://127.0.0.1:5173`.
+Open the address printed by Vite, normally `http://127.0.0.1:5173`. Check out the redesign branch when running this work before integration into `trunk`.
 
 ```sh
-npm test              # Full unit/component suite, enforcing 100% coverage
-npm run typecheck     # Strict TypeScript check, including tests
-npm run build         # TypeScript check and production files in dist/
-npm run preview       # Serve the production build locally
+npm test              # Unit + component tests, enforcing 100% coverage per file
+npm run typecheck     # Strict TypeScript checks, including tests
+npm run build         # Production files in dist/
+npm run preview       # Serve dist/ locally
 ```
 
-`npm ci` installs the committed lockfile without updating dependencies. `npm run test:watch` runs tests during development. The GitHub Actions workflow reads the same `.nvmrc` and runs `npm ci`, `npm test`, and `npm run build` for feature/fix pushes and PRs to `trunk`.
+`npm ci` uses the committed lockfile. `npm run test:watch` starts Vitest in watch mode. CI uses the pinned Node version and runs tests and the production build.
 
-As of 20 September 2026, the [official downloads page](https://nodejs.org/en/download/current) lists 24.21.0 as the latest LTS and 26.9.0 as the latest Current release. We choose LTS for its longer support lifecycle and because [Node.js recommends LTS for production applications](https://nodejs.org/en/about/previous-releases). The package's `>=22.12.0` engine range remains the minimum compatibility requirement; `.nvmrc` selects the exact development and CI runtime. Without nvm, install Node.js 24.21.0 directly before running the npm commands.
+## Use the app
 
-## Implemented features
+### Calendar
 
-- Add expenses with an amount, fixed category, real calendar date, and optional description.
-- Accept `1500`, `1 500`, `1,500`, `1500,50`, and `1500.5`; reject zero, negatives, exponent notation, and more than two decimal places with field-level messages.
-- Navigate months with previous/next buttons. The list, total, category amounts, chart, and budget all use the same month’s records.
-- Delete immediately; Undo restores the same record and id for five seconds. Another deletion replaces the previous Undo. A refilled record limit produces an explicit restore notice.
-- Persist expenses and settings across reloads. Corrupt storage is recovered with a visible notice and a raw backup when space permits; invalid/duplicate records are removed.
-- Synchronize same-origin tabs. Delayed events read the current stored snapshot rather than replaying stale content.
-- Show clear warnings for unavailable/full storage while keeping the current tab usable.
-- Warn about future dates without rejecting them; offer a month-switch link when an entry belongs elsewhere.
-- Filter the transaction list through a keyboard-accessible SVG donut or named legend. Slices are sorted by spending and inactive slices dim. Filtering shows the matching record count without altering the month’s overall total or budget, and resets when changing month or deleting the category’s last expense.
-- Set or clear a monthly budget. See spent, remaining, actual percentage used, capped progress, a warning at 80%, and an explicit over-budget amount. Use Edit to change settings.
-- For the current month, show a daily allowance: remaining minor units divided by days left including today, rounded down. The allowance is hidden when the budget is exhausted or exceeded. The local date refreshes at midnight and when a suspended tab returns.
-- Set an optional stipend day (1–31). A separate countdown clamps to the last day of shorter months, including leap years; it never changes the calendar-month budget. Expenses, budget, and stipend day survive refresh and synchronize across same-origin tabs.
-- Run the isolated validation scenario from the footer. A native modal shows expected/actual results and restores keyboard focus when closed.
-- Use labelled native controls, live field errors/status messages, visible focus, and a responsive layout. On narrow screens the transaction table scrolls within its panel.
+The calendar opens on the current local month. Choose a day to inspect its expenses, then **add to this day** to preselect that date. The blue intensity represents variable spending; hatched cells contain fixed costs. Desktop shows category dots, weekly totals and a category sidebar. Mobile uses a seven-column grid, selected-day card, and fixed bottom navigation.
 
-## How to verify
+Month, week and year views are available on desktop. Their arrows move one month, seven days, or one year respectively. Choose a month in the year view to return to its calendar. Months are isolated across the calendar, ledger and budget.
 
-Choose **Run validation scenario** in the footer. It executes the real reducer and calculation functions in memory and never reads or modifies your stored expenses. All ten checks should pass:
+### Quick entry and commands
 
-| Operation | Total | Food | Transportation |
-| --- | ---: | ---: | ---: |
-| Add Food 1,500; Transportation 600; Food 900 | 3,000 | 2,400 | 600 |
-| Delete Food 900 | 2,100 | 1,500 | 600 |
-
-Each stage also verifies the record count and that category sums equal the total. Use **Run again** to repeat the scenario without closing it. To verify persistence yourself, enter the same three records in one month, reload, delete the 900 record, reload again, then switch months and back. Open a second tab on the exact same origin to check synchronization.
-
-`npm test` enforces **100% lines, branches, functions, and statements per application file**, including components, hooks, storage, and domain logic. Latest local run: **211 tests across 19 files passed; 100% line and branch coverage** (also 100% statements and functions). Only `src/main.tsx` is excluded: it only mounts the React root, which is checked in the browser. Tests use concrete expected values, fake clock/randomness/browser storage boundaries, and real components and reducers. See [verification evidence](docs/verification.md) for the checks performed and their limits.
-
-## Architecture and design notes
-
-**Stack:** React, TypeScript, Vite, Vitest, and plain CSS. React and React DOM are the only runtime dependencies. Testing Library and jsdom are development-only tools. There is no UI kit, chart library, router, state library, or backend.
+Tap **+** on mobile or the command bar on desktop. **⌘K / Ctrl+K** opens or closes quick entry. The live preview shows what will be saved. **Enter** saves; **Shift+Enter** or **add & keep open** saves and keeps the bar ready. **Escape** cancels. A labelled manual form is available under **prefer a form?**.
 
 ```text
-ExpenseForm → domain validation → reducer → useExpenses → localStorage
-                                      ↓
-                           selected month’s records
-                                      ↓
-                         derived totals, chart, budget
+12.50 lunch with Aida #food
+20 bus pass #transport yesterday
+58 textbook #study sep 17
+25 pharmacy #health 2026-09-18
+/budget 1800
+/budget #food 450
+/budget #food off
+/repeat phone 25 monthly #other
+/find #fun >20
+/export
+/export sep csv
+/undo
 ```
 
-- `src/domain/` contains pure money parsing, date validation, month selection, totals, budgeting, and the isolated scenario. Local dates remain `YYYY-MM-DD` strings, avoiding UTC date shifts.
-- `src/storage/` owns the `expense-tracker:v1` schema, sanitization, backups, read/write failures, and browser events. A future backend could replace this boundary without changing the calculations.
-- `src/state/` contains the pure reducer, lazy-loading persistence hook, and local-date clock hook. Initialization reads stored data before any save effect, including under React StrictMode.
-- `src/components/` contains focused, accessible UI components; `App.tsx` composes them and owns month/filter/Undo state. `src/styles.css` holds the visual system and responsive rules.
-- `tests/` mirrors the source structure and includes complete user-flow integration tests.
+- Expense amounts come first; notes are optional. Supported tags are `#food`, `#transport` (also `#transportation`), `#housing`, `#study`, `#fun`, `#health`, and `#other`. Missing tags use Other; unknown or multiple tags produce a clear error.
+- Dates go at the end: `today`, `yesterday`, weekday abbreviations (`mon`–`sun`, most recent occurrence including today), month/day (`sep 12`, current year), or `YYYY-MM-DD`. An undated note uses the selected calendar day when opened from **add to this day**, otherwise today. Explicit relative dates always refer to the real current date.
+- `/budget off` clears the shared monthly limit. Category limits are optional and independent of the monthly limit.
+- `/repeat` creates a monthly fixed cost on today's day of the month. Shorter months clamp the day to their last day. It records the first charge today and generates due charges on later app visits or local day changes. Stop a rule in Budget; already recorded expenses remain.
+- `/find` opens the ledger with a query. `/export` exports the selected month; a named month uses the selected year's month.
+- `/undo` removes the most recent quick/manual entry from this session. Deletion shows a five-second **Undo** toast, which restores the exact current record. Native text undo remains available in text fields.
+- Recent suggestions and category tokens use actual records. Custom tags and invented suggestions are never silently created.
 
-Money is stored as integer minor units: `150000` means USD 1,500. Parsing builds integers from decimal strings, never `parseFloat(value) * 100`. Display division and percentages never feed back into totals. Limits of 999,999,999.99 per amount and 10,000 records keep every possible aggregate below JavaScript’s safe-integer boundary. Totals are never stored.
+The manual amount field accepts `1500`, `1 500`, `1,500`, `1500,50`, and `1500.5`. Quick-entry amounts occupy one token, so use `1,500` for grouped thousands. Invalid/zero/negative amounts, exponent notation, and more than two decimal places are rejected. Future dates are allowed and visibly identified.
 
-The single currency is defined by `CURRENCY` in `src/config.ts`. Changing it changes labels only; it does not convert existing records.
+### Ledger, editing and CSV
+
+The ledger groups records by day, newest first. Select a category chip, or combine search terms with AND:
+
+```text
+#fun >20
+note:lunch
+sep 10..17
+2026-09-10..2026-09-17
+#food >=10 <=30
+```
+
+Plain text searches descriptions, case-insensitively. Malformed filters match no records. Filtered counts, totals and daily groups describe the visible results; Budget and Calendar continue to use the full month. The desktop running budget balance also includes filtered-out records.
+
+Select any expense to change its amount, category, date, note or fixed-cost flag, or to delete it. Fixed costs are explicit, not inferred from Housing. Deleting the final record in an active category clears that filter; Undo returns to the full ledger.
+
+**Import CSV** validates the entire file before offering import. It appends records, preserves existing records, and does not deduplicate repeated imports. The 2 MB file limit and 10,000 total-record limit are checked before insertion. Quoted commas/newlines, escaped quotes, BOM, and CRLF are supported.
+
+```csv
+date,description,category,amount,fixed
+2026-09-01,Rent,Housing,750.00,true
+2026-09-20,Coffee,Food,4.40,false
+```
+
+Column order is fixed; a legacy four-column file without `fixed` is also accepted. CSV category values use their full names (`Transportation`, not `transport`). Export covers all records in the selected month, regardless of the active filter. Formula-like notes are escaped for spreadsheet safety. CSV contains expenses and fixed flags, **not budget settings or recurring rules**.
+
+### Budget
+
+Set the overall monthly limit and optional category limits; desktop inputs save on blur or Enter. On mobile choose **edit limits**, edit, then **done**. Blank inputs clear a limit. Limits persist across reloads and apply to every month; there are no separate historical budgets.
+
+- The chart plots actual cumulative spending, a budget pace line, and a month-end estimate. A compact chart appears on mobile.
+- Variable daily average uses only elapsed calendar days and excludes fixed costs. No-spend days are elapsed days with no recorded expense, not a claim about untracked real spending.
+- Forecast = spending through today + future fixed costs + the larger of known future variable spending or observed variable daily pace × remaining days. Pending recurring fixed costs count once. Past months show their actual total; future months show known/planned costs.
+- Safe daily allowance reserves pending fixed costs and divides the remaining budget by days left **including today**, rounded down. Negative availability displays zero on the main views; Settings hides the daily guidance when unavailable. This intentionally differs from the reference prototype's example, which divides by days after today.
+- Category markers show elapsed-month pace. Status is **NO LIMIT**, **OK**, **WATCH**, **OVER**, or **PAID** for an entirely fixed, recorded category within its limit. These are arithmetic indicators, not financial predictions.
+- Settings retains the optional stipend day (1–31), including shorter-month clamping and a countdown. It is separate from the calendar-month budget. Access Settings from the desktop header or the Budget footer on mobile.
+
+## Validation and architecture
+
+**Stack:** React 19, TypeScript, Vite, plain CSS; Vitest, Testing Library and jsdom for tests. React and React DOM are the only application runtime dependencies. There is no backend, UI kit, chart library, router, or model API. Geist fonts are bundled locally with their SIL Open Font Licenses.
+
+```text
+Quick entry / forms / CSV → validation → reducer → useExpenses → localStorage
+                                               ↓
+                                  one month of expense records
+                                               ↓
+                              Calendar · Ledger · Budget forecasts
+```
+
+- `src/domain/`: pure money/date validation, commands, search, CSV, recurrence, totals and forecasts.
+- `src/storage/`: version-1 schema recovery, persistence, cross-tab events, and local CSV downloads.
+- `src/state/`: reducer, persistence hook, and local-day clock (refreshes at midnight and on returning to the tab).
+- `src/components/`: responsive views, entry/editor/import dialogs, reusable display components. `App.tsx` coordinates navigation and actions.
+- `src/styles/`: shared tokens/controls and view-specific mobile-first styles, with desktop rules separated.
+- `tests/`: mirrors production modules and includes end-to-end component flows for import, editing, Undo, commands, recurrence and persistence.
+
+Money is stored as integer minor units: `150000` means USD 1,500. Parsing does not multiply floating-point inputs to derive money. Totals are calculated, never stored. The 999,999,999.99 amount limit and 10,000-record limit keep aggregates within safe integers. `CURRENCY` in `src/config.ts` is USD; changing its label is not a currency conversion.
+
+The test configuration enforces **100% lines, branches, statements and functions per application file**. Only `src/main.tsx`, which mounts React, is excluded; mounting is checked in the browser. Tests assert behavior with deterministic clock/storage/file boundaries. See [verification evidence](docs/verification.md) for current results and design comparisons.
+
+Settings also contains **Run validation scenario**: it runs the real reducer/calculations in memory without touching stored data. Adding Food 1,500, Transportation 600 and Food 900 must produce 3,000 total; deleting Food 900 leaves 2,100. All ten checks include counts and category-total equality.
 
 ## Storage and limitations
 
-- Data is per browser profile, device, and origin. There is no account, cloud/device sync, export, bank connection, or multi-currency conversion.
-- Tabs on the same origin synchronize snapshots with **last-write-wins**. Truly simultaneous edits can replace one another; this is not a transactional multi-user store.
-- Clearing site data deletes expenses and settings. Private browsing may discard data when closed. Storage is not encrypted by the app.
-- A malformed or unsupported payload is backed up under `expense-tracker:v1:backup` before recovery when storage permits. A later recovery can replace that backup. If storage is blocked or full, the banner explains that in-memory changes may be lost on closing/reloading.
-- Seven categories are fixed. There is no edit action yet; delete and re-add to correct a record.
-- The monthly budget is one shared limit applied to every month, not separate historical budgets. Future-dated records count in their dated month. The daily allowance is arithmetic on entered data, not a forecast.
-- Modern browsers with native `<dialog>` support are required; older browsers have not been tested. Expense ids use `crypto.randomUUID` when available, with a timestamp/random fallback. Use localhost for development and HTTPS for deployment.
+- Data stays in this browser profile and origin. Existing version-1 expenses, budgets and stipend settings load without a reset. Optional category limits, fixed flags and recurrence fields extend that schema.
+- Same-origin tabs synchronize snapshots using last-write-wins. Truly simultaneous edits can replace one another; this is not a transactional multi-user store.
+- Corrupt data is recovered with a visible notice and a raw backup at `expense-tracker:v1:backup` when space permits. Invalid/duplicate records are removed. Blocked/full storage shows a warning while the current tab remains usable.
+- Clearing browser data removes records. The app does not encrypt storage. There is no account, cloud/device synchronization, bank connection, multi-currency support, custom category creation, or separate per-month limits.
+- Recurrence runs while the app is open or when it is reopened; there is no background service. If the record limit blocks a charge, freeing space lets it resume. Deleted occurrences stay deleted; stopping a rule preserves past entries.
+- No application-data network requests or remotely hosted assets are used. Recording and calculations work once loaded without internet. **Offline reload/install is not supported**: no service worker is included.
+- Modern browsers with native `<dialog>` support are required. Browser QA uses the Codex in-app browser at desktop and mobile viewport sizes; real phone keyboards and other browser engines are not claimed tested.
 
-**No runtime AI or external API calls.** Development was AI-assisted. The app makes no application-data network requests and loads no remote fonts, scripts, images, analytics, or services. A browser fetches the static HTML, JavaScript, CSS, and icon from the same origin. Once loaded, recording expenses, calculations, and local persistence work without a network connection. **Offline reload is not supported:** there is no service worker or offline installation, and cached files are not guaranteed. A locally running preview remains usable without internet access.
+The supplied HTML exports include illustrative suggestions, sample data, and a hint that arbitrary tags could be created. Those are not persisted production features: the implemented category system deliberately retains the seven validated categories. Separate historical budgets and custom categories would need additional storage/editor workflows. These are the remaining design-adjacent items on the roadmap, rather than inert controls in the main flow.
 
-## Deployment
+## Deployment and repository workflows
 
-The production build uses Vite `base: './'`, so static assets resolve from the deployed path. Any static HTTPS host can serve `dist/`. `.openai/hosting.json` configures this project’s Sites deployment as static-only.
+`npm run build` produces `dist/`; any static HTTPS host can serve it. Vite uses `base: './'` for relative asset paths. `.openai/hosting.json` retains the existing static Sites setup. This task does not change the hosted deployment. Double-clicking `dist/index.html` is unsupported; use the preview server or a static host.
 
-Sites deployment succeeded for application revision `330260a`. The link above intentionally has owner-only access, as requested. It is not an anonymous judge-facing demo; reviewers without owner access can run the README commands locally. No anonymous public-browser verification is claimed.
-
-Serve the build through `npm run build && npm run preview` or an HTTPS static host. Double-clicking `dist/index.html` is not supported because browsers restrict ES modules on `file://`. No single-file plugin or service worker is included.
-
-## Agent skills
-
-Project skills are mirrored in [`.agents/skills/`](.agents/skills/) for Codex and [`.claude/skills/`](.claude/skills/) for Claude Code. Both include the repository's branch, commit, and pull request requirements, plus these skills copied from [Vercel's agent-skills](https://github.com/vercel-labs/agent-skills/tree/063bee94c3f4df8453406c830b0a7df0f2860278/skills):
-
-- `composition-patterns`: React component composition and reusable APIs.
-- `react-best-practices`: React and Next.js performance guidance.
-- `react-view-transitions`: React view transition patterns and reference material.
-- `web-design-guidelines`: UI reviews using the upstream Web Interface Guidelines fetched at review time.
-
-The four upstream directories, including their supporting files and metadata, are preserved unchanged at revision `063bee94c3f4df8453406c830b0a7df0f2860278`. To update them, copy all four directories from the chosen upstream revision into both skill locations, update this revision, and run `diff -r .agents/skills .claude/skills` to verify the mirrors match.
-
-## Roadmap
-
-- Edit existing expenses.
-- Export/import a validated backup.
-- Separate budgets for individual months.
-
-These are intentionally not implemented.
+Agent instructions and repository skills are mirrored in [`.agents/skills/`](.agents/skills/) and [`.claude/skills/`](.claude/skills/). Keep both copies identical. All work uses a task branch and reaches `trunk` through a PR; commits use Conventional Commits. The imported Vercel skill copies remain at revision `063bee94c3f4df8453406c830b0a7df0f2860278`.

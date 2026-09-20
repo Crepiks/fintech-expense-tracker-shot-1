@@ -1,53 +1,68 @@
 # Verification evidence
 
-## Base-branch integration — 20 September 2026
+## Mobile-first redesign — 20 September 2026
 
-Merged trunk revision `8096c18` into the add-ons branch. Documentation conflicts were resolved by retaining the pinned Node.js setup and the add-on verification history. No application source or dependency lockfile changed during conflict resolution.
-
-Using `nvm use` selected Node.js **24.21.0** and npm **11.19.0**. `npm ci --engine-strict --no-audit --no-fund`, `npm test`, `npm run typecheck`, and `npm run build` passed. All **211 tests in 19 files** passed with **100% lines (314/314), branches (245/245), statements (369/369), and functions (113/113)**. npm emitted a non-blocking install-script notice for optional `fsevents`; installation and all checks completed successfully. `diff -r .agents/skills .claude/skills` confirmed identical shared skill copies.
-
-The browser checks and deployment below remain evidence for the unchanged application revision; they were not repeated for this documentation/runtime merge.
-
-## Historical Node.js runtime pin — 20 September 2026
-
-The runtime configuration change was verified on macOS arm64 using Node.js **24.21.0** and bundled npm **11.19.0**, selected by `nvm use` from `.nvmrc`. The official binary checksum matched during `nvm install`. Application code and the dependency lockfile were unchanged from trunk revision `4469c29`.
-
-- A fresh `npm ci --engine-strict --cache /tmp/pocket-ledger-node24-npm-cache --no-audit --no-fund --fetch-retries=0` installed all locked dependencies with no engine incompatibilities. The first sandboxed attempt encountered DNS restrictions; the network-enabled retry succeeded.
-- `npm test` passed all **174 tests in 18 files**, including the existing user-flow integration tests. Coverage remained **100%**: 283/283 lines, 188/188 branches, 333/333 statements, and 102/102 functions, with the existing per-file thresholds enforced.
-- `npm run typecheck` and `npm run build` passed.
-- GitHub Actions was updated to read `.nvmrc` through `node-version-file`. These results describe the runtime-pin change before integration with the add-ons.
-
-## Add-ons verification — 20 September 2026
-
-Verified locally with Node.js 22.22.0 before integrating the runtime pin. These results cover the add-ons branch and the existing core together.
+Implemented from the supplied eight-page “Pocket Ledger — Redesign Directions” PDF and the eight desktop/mobile HTML exports. The source files remain external design references; screenshots below show the working application. Work is on `feat/mobile-first-redesign`, based on `origin/trunk` revision `5aad69f`.
 
 ## Automated checks
 
-- `npm ci`: dependency installation succeeded; no new dependencies were added. A fresh clone of the published `feat/expense-addons` branch in a separate temporary directory also passed `npm ci`, `npm test` (211 tests, 100% coverage), and `npm run build`. This was on the same machine.
-- `npm test`: **211 tests passed across 19 files**. V8 reports **100% lines (314/314), branches (245/245), statements (369/369), and functions (113/113)**. Per-file thresholds remain 100%; only the React mounting entry point is excluded with its existing explanation.
-- `npm run typecheck` and `npm run build`: passed. Vite emits relative static assets in `dist/`.
-- An independent read-only review found no actionable code issues and independently ran the same passing coverage suite.
-- New behavior tests cover ten validation results; no storage reads/writes during validation; dialog rerun and closing; sorted/dimmed donut slices; filter reset after deletion; budget persistence, percentage and daily guidance through add/delete/undo; stipend clamping, leap years, same-day and year rollover; old version-1 settings defaults; cross-tab settings; and missing `crypto.randomUUID`.
+Using the repository's pinned Node.js **24.21.0**:
 
-## Production browser checks
+- `npm ci` completed using the existing lockfile. No runtime or development dependencies were added.
+- `npm test`: **611 tests across 44 files**, all passing. Enforced per-file coverage: **100% statements (1,109/1,109), branches (920/920), functions (304/304), and lines (818/818)**.
+- `npm run typecheck` and `npm run build` passed. The production bundle is approximately 286.32 kB JavaScript / 87.67 kB gzip and 32.42 kB CSS / 6.90 kB gzip, plus locally bundled fonts.
+- The only coverage exclusion remains `src/main.tsx`, which mounts React. Production mounting was checked in the browser. No behavior was excluded or skipped to reach coverage.
+- Shared skills remain unchanged and identical in `.agents/skills` and `.claude/skills`.
 
-Used bundled Playwright with a fresh, isolated Chrome 153.0.8010.52 context against `npm run preview -- --port 4175` at `http://127.0.0.1:4175/`. The Browser plugin/skill was not available, so ordinary Playwright was used. No user browser data was accessed.
+Tests cover legacy storage recovery, category limits, monthly recurrence and capacity retry, money/date boundaries, CSV quoting and formula escaping, atomic import, command parsing, combined filters, editing, deletion/Undo, fixed-cost forecasts, all view states, keyboard shortcuts, dialogs, and cross-tab updates. Filesystem, clock, UUID, and storage boundaries are deterministic in unit tests.
 
-- Page identity and main content rendered, without a framework error overlay.
-- Added Food 1,500, Transportation 600, Food 900: overall 3,000; Food 2,400 (80%); Transportation 600 (20%).
-- Validation modal showed ten PASS rows, including after Run again. Escape closed it. Stored data was byte-for-byte identical before and after.
-- Filtering Food showed two records with total still 3,000. Deleting Food 900 changed total to 2,100, Food to 1,500 (71%), Transportation to 600 (29%).
-- Deleting the last filtered Food record cleared the filter. Undo restored the record. Month navigation also cleared an active filter.
-- Budget 5,000 with spent 2,100 showed remaining 2,900 and 42% used. Reload preserved expenses, budget, and stipend. A previous month hid daily guidance.
-- A second tab changed budget to 6,000 and stipend day to 31; the first tab updated. On September 20, the countdown targeted September 30, ten days away.
-- Desktop 1440×1100 and mobile 390×844 screenshots were inspected. No page-width overflow; the narrow transaction table scrolls within its panel. [Desktop](screenshots/desktop.png), [mobile](screenshots/mobile.png), [validation](screenshots/validation.png).
-- After the browser was set offline, adding another expense worked and the total changed from 2,100 to 2,125. Offline reload failed, as expected: the app has no service worker and does not promise offline reload support.
-- Network requests were limited to the same-origin document, compiled JS, CSS, and favicon. No external runtime requests. The initial missing favicon was fixed with a local SVG; the repeated browser flow completed with no warning/error console messages or page errors before the intentional offline reload.
+Independent review identified and led to regression fixes for relative dates when adding to a selected day, stale deleted-record snapshots, future fixed-cost forecast arithmetic, pending-cost reserves in Settings, capacity-blocked recurrence, and calendar navigation across weeks/years. A follow-up review passed 94 targeted tests; its final cross-month week finding was then reproduced and fixed with regression coverage. The week containing September 30 ($10) and October 1 ($20) now shows all seven dates and a $30 total.
+
+Browser testing additionally reproduced native dialog focus moving to Cancel. Quick entry now focuses the note after `showModal`; a regression test models native initial focus. Historical months with a saved limit say “Current month only” instead of incorrectly prompting “Set a budget.”
+
+## Browser checks
+
+Used the Codex in-app browser with the Vite development server at an isolated test origin, `http://127.0.0.1:5185/`. The existing data at port 5173 was left untouched. All screenshot data is synthetic, imported through the real CSV interface; the app does not seed these records into a new user's storage.
+
+- Imported all 29 reference records. September showed **$1,286.40 spent**, **$750 fixed**, **$26.82 variable daily average**, and **$513.60 left** with an $1,800 limit. Saved all seven category caps; reload preserved them.
+- Added a $12.50 Food expense, searched with `note:lunch >10`, edited it to $15, deleted it, and used Undo to restore the edited $15 record. Removed the temporary record and confirmed the original 29 entries after reload.
+- Checked mobile Calendar, Ledger, Budget and Add at **390×844**; Calendar also at **320×740**. Checked tablet ledger width at **768×1024** and all desktop screens at **1280×960**. No page-width overflow at the checked narrow widths.
+- Verified category filtering, selected-day details, editable limits, fixed costs, and month navigation. In desktop week view, September 27 → Next displays the complete September 28–October 4 week. Selecting September 30 changes the month back to September. Year navigation advances to 2027.
+- Verified ⌘K opens quick entry with note focus; Escape closes it and restores trigger focus. The desktop dialog fits its content; mobile Add fills the viewport.
+- Inspected the screenshots against the PDF/HTML references for typography, blue heatmap, hatch treatment, spacing, sidebar, ledger columns, category bars, chart and mobile navigation.
+
+A separate production smoke test used `npm run preview -- --port 4185` and fresh storage:
+
+1. Loaded the built app and its bundled font assets.
+2. Used Ctrl+K and Enter to record `12.50 smoke test #food`; the ledger showed one entry totaling $12.50.
+3. Triggered CSV export and observed the selected-month export confirmation. CSV serialization and download lifecycle are independently covered by unit tests.
+4. Reloaded; the record remained. Settings' validation scenario reported **10/10 PASS** and left the record unchanged.
+5. Production console contained **no warnings or errors**. During development, one earlier HMR-only effect-dependency warning occurred while changing code; it did not recur in the production build.
+
+## Screenshots and design comparison
+
+| Screen | Desktop | Mobile | Comparison |
+| --- | --- | --- | --- |
+| Calendar | [Desktop](screenshots/desktop.png) | [Mobile](screenshots/mobile.png) | Geist typography, blue spending intensity, fixed-cost hatch, selected-day card, desktop category sidebar, mobile bottom navigation. |
+| Ledger | [Desktop](screenshots/ledger.png) | [Mobile](screenshots/ledger-mobile.png) | Search and filter chips, day grouping, desktop summary cards/running balance, simplified mobile rows. |
+| Budget | [Desktop](screenshots/budget.png) | [Mobile](screenshots/budget-mobile.png) | Cumulative chart, black forecast panel, per-category limits and pace markers, fixed-cost list. |
+| Quick entry | [Command bar](screenshots/command.png) | [Add](screenshots/add-mobile.png) | Editable note, live parsed preview, category/date tokens, real recent entries, full-screen mobile form. |
+
+[Validation scenario](screenshots/validation.png) also uses the redesigned UI.
+
+Intentional differences from the prototypes:
+
+- Live date, real records and calculated figures replace static sample values. Safe allowance includes today: the reference records yield **$46.69/day**, rather than the prototype's $51.36 that excludes today.
+- Suggestions use actual recent records, not fabricated frequency/average claims. The command dialog shares mobile entry tokens and the optional manual form.
+- Category creation is not implemented: the existing seven-category validation/storage contract is retained. Arbitrary tags would need a category management and migration workflow.
+- Limits remain shared between months. Historical per-month budgets would need a versioned budget model and editor.
+- Monthly recurring charges are implemented locally and caught up on reopening. There is no background service, cloud synchronization or bank connection.
+- Mobile adds a selected-day entry action and CSV access; desktop retains Settings and the original validation scenario. No inert prototype controls were added.
 
 ## Limits and delivery
 
-These are local results, not a claim of validation on another physical machine. Firefox, Safari, old browsers, screen readers, and physical phones were not separately tested. Storage failure, clock rollover, and legacy migration use deterministic unit tests. Simultaneous tab edits still follow last-write-wins.
+The redesign is local work, not a new hosted deployment. The owner-only Sites demo linked in the README still runs an older revision. No push, PR merge, deployment, or audience change was performed for this task.
 
-Sites reported a successful owner-only deployment of application revision `330260a` at [Pocket Ledger](https://pocket-ledger-expenses.crepiks.chatgpt.site). The final follow-up documentation change does not alter its built assets. The owner explicitly chose to keep the Site owner-only after automatic approval review blocked audience expansion. Public access is outside the final delivery scope; anonymous public-browser verification is not claimed.
+These checks do not claim physical-phone, soft-keyboard, screen-reader, Firefox or independent Safari validation. Browser storage remains last-write-wins across tabs. Recording works after the app has loaded without network, but offline reload/install is not supported. The build remains a static application with no service worker or backend.
 
-GitHub Actions `test-and-build` passed for application revision `330260a` on [PR #6](https://github.com/Crepiks/fintech-expense-tracker-shot-1/pull/6). A recognizable credential-pattern scan of tracked history found no matches; this is a hygiene check, not a security audit. No application TypeScript file exceeds 300 lines.
+Historical verification evidence for the previous design is retained in Git history; the screenshots and results in this document describe this redesign only.
