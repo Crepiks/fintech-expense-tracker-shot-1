@@ -31,23 +31,6 @@ npm run preview       # Serve the production build locally
 
 For a reproducible installation, use `npm ci`. `npm run test:watch` runs tests during development. The GitHub Actions workflow runs `npm ci`, `npm test`, and `npm run build` for feature/fix pushes and PRs to `trunk`.
 
-## Shared agent skills
-
-Repository skills must support both Codex and Claude Code. Keep matching copies in both directories:
-
-- [`.agents/skills/`](.agents/skills/) for Codex.
-- [`.claude/skills/`](.claude/skills/) for Claude Code.
-
-Both directories contain the branch, commit, and pull request requirements. Whenever a skill is added, changed, renamed, or removed, update both directories in the same change. Keep skill names, `SKILL.md` contents, and any supporting files identical, and ensure relative links work from both locations. Both agents must also follow [AGENTS.md](AGENTS.md).
-
-Before committing skill changes, verify the directories match from the repository root:
-
-```sh
-diff -r .agents/skills .claude/skills
-```
-
-No output and exit status 0 means the copies match.
-
 ## Implemented features
 
 - Add expenses with an amount, fixed category, real calendar date, and optional description.

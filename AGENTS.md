@@ -89,6 +89,23 @@ Update `README.md` whenever functionality changes. The README must include:
 4. Local setup instructions with commands that can be copied and actually work.
 5. Tech stack and a short description of the architecture or data flow.
 
+## Shared agent skills
+
+Repository skills must support both Codex and Claude Code. Keep matching copies in both directories:
+
+- [`.agents/skills/`](.agents/skills/) for Codex.
+- [`.claude/skills/`](.claude/skills/) for Claude Code.
+
+Both directories contain the branch, commit, and pull request requirements. Whenever a skill is added, changed, renamed, or removed, update both directories in the same change. Keep skill names, `SKILL.md` contents, and any supporting files identical, and ensure relative links work from both locations. Both agents must also follow this file.
+
+Before committing skill changes, verify the directories match from the repository root:
+
+```sh
+diff -r .agents/skills .claude/skills
+```
+
+No output and exit status 0 means the copies match.
+
 ## Branches and Pull Requests
 
 - **Required skill:** Before starting a feature or changing branches, pushing, or working with a PR, read and follow [branch-requirements](.agents/skills/branch-requirements/SKILL.md).
