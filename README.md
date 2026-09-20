@@ -4,16 +4,18 @@ A private, local-only expense tracker for people who want a clearer view of ever
 
 Small purchases are easy to lose track of, and spreadsheets take effort to maintain. Pocket Ledger makes the daily entry quick and keeps every total derived from the same monthly records, so adding or deleting an expense updates the whole picture immediately.
 
-![Pocket Ledger with three sample expenses and a monthly budget](docs/screenshots/desktop.png)
+![Pocket Ledger with sample expenses and a monthly budget](docs/screenshots/desktop.png)
 
 [Phone layout](docs/screenshots/mobile.png). Screenshots use synthetic example records; a new browser starts empty.
+
+[Deployed demo — owner-only access](https://pocket-ledger-expenses.crepiks.chatgpt.site). Access is intentionally limited to the owner.
 
 ## Launch
 
 Use **Node.js 24.21.0 LTS**, pinned in [`.nvmrc`](.nvmrc), and its bundled npm. With [nvm](https://github.com/nvm-sh/nvm) installed, run the commands below. No API keys, accounts, or environment variables are needed.
 
 ```sh
-git clone git@github.com:Crepiks/fintech-expense-tracker-shot-1.git
+git clone https://github.com/Crepiks/fintech-expense-tracker-shot-1.git
 cd fintech-expense-tracker-shot-1
 nvm install
 nvm use
@@ -44,24 +46,25 @@ As of 20 September 2026, the [official downloads page](https://nodejs.org/en/dow
 - Synchronize same-origin tabs. Delayed events read the current stored snapshot rather than replaying stale content.
 - Show clear warnings for unavailable/full storage while keeping the current tab usable.
 - Warn about future dates without rejecting them; offer a month-switch link when an entry belongs elsewhere.
-- Filter the transaction list through a keyboard-accessible SVG donut or named legend. Filtering does not alter the month’s overall total or budget.
-- Set or clear a monthly budget. See spent, remaining, capped progress, and an explicit over-budget amount.
-- For the current month, show a daily allowance: remaining minor units divided by days left including today, rounded down, never below zero. The local date refreshes at midnight and when a suspended tab returns.
+- Filter the transaction list through a keyboard-accessible SVG donut or named legend. Slices are sorted by spending and inactive slices dim. Filtering shows the matching record count without altering the month’s overall total or budget, and resets when changing month or deleting the category’s last expense.
+- Set or clear a monthly budget. See spent, remaining, actual percentage used, capped progress, a warning at 80%, and an explicit over-budget amount. Use Edit to change settings.
+- For the current month, show a daily allowance: remaining minor units divided by days left including today, rounded down. The allowance is hidden when the budget is exhausted or exceeded. The local date refreshes at midnight and when a suspended tab returns.
+- Set an optional stipend day (1–31). A separate countdown clamps to the last day of shorter months, including leap years; it never changes the calendar-month budget. Expenses, budget, and stipend day survive refresh and synchronize across same-origin tabs.
 - Run the isolated validation scenario from the footer. A native modal shows expected/actual results and restores keyboard focus when closed.
 - Use labelled native controls, live field errors/status messages, visible focus, and a responsive layout. On narrow screens the transaction table scrolls within its panel.
 
 ## How to verify
 
-Choose **Run validation scenario** in the footer. It executes the real reducer and calculation functions in memory and never reads or modifies your stored expenses. All eight checks should pass:
+Choose **Run validation scenario** in the footer. It executes the real reducer and calculation functions in memory and never reads or modifies your stored expenses. All ten checks should pass:
 
 | Operation | Total | Food | Transportation |
 | --- | ---: | ---: | ---: |
 | Add Food 1,500; Transportation 600; Food 900 | 3,000 | 2,400 | 600 |
 | Delete Food 900 | 2,100 | 1,500 | 600 |
 
-Each stage also verifies that category sums equal the total. To verify persistence yourself, enter the same three records in one month, reload, delete the 900 record, reload again, then switch months and back. Open a second tab on the exact same origin to check synchronization.
+Each stage also verifies the record count and that category sums equal the total. Use **Run again** to repeat the scenario without closing it. To verify persistence yourself, enter the same three records in one month, reload, delete the 900 record, reload again, then switch months and back. Open a second tab on the exact same origin to check synchronization.
 
-`npm test` enforces **100% lines, branches, functions, and statements per application file**, including components, hooks, storage, and domain logic. Only `src/main.tsx` is excluded: it only mounts the React root, which is checked in the browser. Tests use concrete expected values, fake clock/randomness/browser storage boundaries, and real components and reducers. See [verification evidence](docs/verification.md) for the checks performed and their limits.
+`npm test` enforces **100% lines, branches, functions, and statements per application file**, including components, hooks, storage, and domain logic. Latest local run: **211 tests across 19 files passed; 100% line and branch coverage** (also 100% statements and functions). Only `src/main.tsx` is excluded: it only mounts the React root, which is checked in the browser. Tests use concrete expected values, fake clock/randomness/browser storage boundaries, and real components and reducers. See [verification evidence](docs/verification.md) for the checks performed and their limits.
 
 ## Architecture and design notes
 
@@ -93,15 +96,17 @@ The single currency is defined by `CURRENCY` in `src/config.ts`. Changing it cha
 - A malformed or unsupported payload is backed up under `expense-tracker:v1:backup` before recovery when storage permits. A later recovery can replace that backup. If storage is blocked or full, the banner explains that in-memory changes may be lost on closing/reloading.
 - Seven categories are fixed. There is no edit action yet; delete and re-add to correct a record.
 - The monthly budget is one shared limit applied to every month, not separate historical budgets. Future-dated records count in their dated month. The daily allowance is arithmetic on entered data, not a forecast.
-- Modern browsers with `crypto.randomUUID` and native `<dialog>` support are required. Use localhost for development and HTTPS for deployment.
+- Modern browsers with native `<dialog>` support are required; older browsers have not been tested. Expense ids use `crypto.randomUUID` when available, with a timestamp/random fallback. Use localhost for development and HTTPS for deployment.
 
-**No AI and no external APIs are used at runtime.** The app makes no application-data network requests and loads no remote fonts, images, analytics, or services. Loading the static app itself still requires a web server; offline installation is not implemented.
+**No runtime AI or external API calls.** Development was AI-assisted. The app makes no application-data network requests and loads no remote fonts, scripts, images, analytics, or services. A browser fetches the static HTML, JavaScript, CSS, and icon from the same origin. Once loaded, recording expenses, calculations, and local persistence work without a network connection. **Offline reload is not supported:** there is no service worker or offline installation, and cached files are not guaranteed. A locally running preview remains usable without internet access.
 
 ## Deployment
 
 The production build uses Vite `base: './'`, so static assets resolve from the deployed path. Any static HTTPS host can serve `dist/`. `.openai/hosting.json` configures this project’s Sites deployment as static-only.
 
-The hosting project has been registered, but publication is awaiting explicit approval for the separate hosting destination. No live deployment is claimed yet.
+Sites deployment succeeded for application revision `330260a`. The link above intentionally has owner-only access, as requested. It is not an anonymous judge-facing demo; reviewers without owner access can run the README commands locally. No anonymous public-browser verification is claimed.
+
+Serve the build through `npm run build && npm run preview` or an HTTPS static host. Double-clicking `dist/index.html` is not supported because browsers restrict ES modules on `file://`. No single-file plugin or service worker is included.
 
 ## Roadmap
 

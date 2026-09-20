@@ -16,7 +16,7 @@ import { JudgeMode } from './components/JudgeMode';
 import { BudgetCard } from './components/BudgetCard';
 
 export default function App() {
-  const { expenses, settings, add, remove, restore, setBudget, storageNotice } = useExpenses();
+  const { expenses, settings, add, remove, restore, setBudget, setStipendDay, storageNotice } = useExpenses();
   const today = useToday();
   const [actionNotice, setActionNotice] = useState('');
   const [selectedMonth, setSelectedMonth] = useState(() => monthKey(today));
@@ -25,6 +25,9 @@ export default function App() {
   const clearDeleted = useCallback(() => setLastDeleted(null), []);
   const monthList = useMemo(() => expensesForMonth(expenses, selectedMonth), [expenses, selectedMonth]);
   const totals = useMemo(() => computeTotals(monthList), [monthList]);
+
+  // Drop stale filters after local deletions or incoming tab updates.
+  if (categoryFilter !== null && totals.byCategory[categoryFilter] === 0) setCategoryFilter(null);
 
   function changeMonth(month: string) {
     setSelectedMonth(month);
@@ -42,7 +45,7 @@ export default function App() {
   }
 
   function addExpense(value: ExpenseValue) {
-    add({ ...value, id: crypto.randomUUID(), createdAt: Date.now() });
+    add({ ...value, id: crypto.randomUUID?.() ?? Date.now().toString(36) + Math.random().toString(36).slice(2), createdAt: Date.now() });
   }
 
   return <div className="app-shell">
@@ -57,11 +60,12 @@ export default function App() {
       <div className="dashboard-grid">
         <div className="ledger-column">
           <Totals totals={totals} count={monthList.length} filter={categoryFilter} onFilter={setCategoryFilter} />
+          {categoryFilter && <p className="filter-hint">Showing {categoryFilter} only — {monthList.filter(expense => expense.category === categoryFilter).length} of {monthList.length} expenses</p>}
           <ExpenseList categoryFilter={categoryFilter} expenses={monthList} month={selectedMonth} onDelete={expense => { remove(expense.id); setLastDeleted(expense); }} />
         </div>
         <aside className="entry-column" aria-label="Manage expenses">
           <ExpenseForm today={today} selectedMonth={selectedMonth} onAdd={addExpense} onMonthChange={changeMonth} canAdd={expenses.length < MAX_EXPENSES} />
-          <BudgetCard budgetMinor={settings.monthlyBudgetMinor} spentMinor={totals.totalMinor} month={selectedMonth} today={today} onSave={setBudget} />
+          <BudgetCard budgetMinor={settings.monthlyBudgetMinor} spentMinor={totals.totalMinor} month={selectedMonth} today={today} onSave={setBudget} stipendDay={settings.stipendDay} onStipendSave={setStipendDay} />
         </aside>
       </div>
     </main>

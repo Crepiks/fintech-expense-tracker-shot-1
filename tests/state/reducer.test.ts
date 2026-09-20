@@ -29,3 +29,9 @@ it('enforces the record cap for add and restore', () => {
   expect(expensesReducer(full, { type: 'add', expense })).toBe(full);
   expect(expensesReducer(full, { type: 'restore', expense })).toBe(full);
 });
+it('sets and clears stipend day while keeping the budget, and vice versa', () => {
+  const withStipend = expensesReducer(data, { type: 'setStipendDay', day: 31 });
+  expect(withStipend.settings).toEqual({ monthlyBudgetMinor: 500000, stipendDay: 31 });
+  expect(expensesReducer(withStipend, { type: 'setBudget', minor: null }).settings).toEqual({ monthlyBudgetMinor: null, stipendDay: 31 });
+  expect(expensesReducer(withStipend, { type: 'setStipendDay', day: null }).settings).toEqual({ monthlyBudgetMinor: 500000, stipendDay: null });
+});

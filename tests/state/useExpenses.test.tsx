@@ -80,3 +80,15 @@ it('ignores a delayed snapshot when this tab has already saved newer data', () =
   act(() => result.current.setBudget(100000));
   expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).expenses).toEqual([newer]);
 });
+it('persists stipend settings on remount and accepts them from another tab', () => {
+  const { result, unmount } = renderHook(useExpenses);
+  act(() => result.current.setStipendDay(31));
+  act(() => result.current.setBudget(600000));
+  unmount();
+  const next = renderHook(useExpenses);
+  expect(next.result.current.settings).toEqual({ monthlyBudgetMinor: 600000, stipendDay: 31 });
+  const raw = JSON.stringify({ ...data, settings: { monthlyBudgetMinor: 800000, stipendDay: 5 } });
+  localStorage.setItem(STORAGE_KEY, raw);
+  act(() => window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY, newValue: raw })));
+  expect(next.result.current.settings).toEqual({ monthlyBudgetMinor: 800000, stipendDay: 5 });
+});

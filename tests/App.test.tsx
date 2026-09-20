@@ -79,8 +79,8 @@ it('filters only the list, toggles off, clears explicitly, and resets on month c
   expect(screen.getByLabelText('Total spent')).toHaveTextContent('USD 30');
   await user.click(screen.getByRole('button', { name: 'Filter Food' }));
   expect(screen.getAllByRole('button', { name: 'Delete expense' })).toHaveLength(2);
-  await user.click(screen.getByRole('button', { name: 'Filter Health' }));
-  expect(screen.getByText('No Health expenses in September 2026.')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Filter Food' }));
+  expect(screen.getAllByRole('button', { name: 'Delete expense' })).toHaveLength(1);
   await user.click(screen.getByRole('button', { name: 'Clear filter' }));
   expect(screen.getAllByRole('button', { name: 'Delete expense' })).toHaveLength(2);
   await user.click(screen.getByRole('button', { name: 'Filter Food' }));
@@ -108,4 +108,56 @@ it('explains when Undo cannot restore into a refilled full ledger', async () => 
   fireEvent.click(screen.getByRole('button', { name: 'Add an expense' }));
   fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
   expect(screen.getByRole('alert')).toHaveTextContent('Could not restore');
+});
+
+it('clears a filter when its last expense is deleted and leaves undo unfiltered', async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  for (const [amount, category] of [['10', 'Food'], ['20', 'Transportation']]) {
+    await user.type(screen.getByLabelText('Amount (USD)'), amount);
+    await user.selectOptions(screen.getByLabelText('Category'), category);
+    await user.click(screen.getByRole('button', { name: 'Add an expense' }));
+  }
+  fireEvent.click(screen.getByRole('button', { name: 'Filter Food' }));
+  expect(screen.getByText('Showing Food only — 1 of 2 expenses')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Delete expense' }));
+  expect(screen.queryByRole('button', { name: 'Clear filter' })).not.toBeInTheDocument();
+  expect(screen.getByRole('row', { name: /Transportation.*USD 20/ })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+  expect(screen.getAllByRole('button', { name: 'Delete expense' })).toHaveLength(2);
+});
+it('updates budget guidance through add, delete, undo, and keeps stipend after reload', () => {
+  const { unmount } = render(<App />);
+  fireEvent.change(screen.getByLabelText('Monthly budget (USD)'), { target: { value: '1200' } });
+  fireEvent.change(screen.getByLabelText('Stipend day (optional)'), { target: { value: '1' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Save budget' }));
+  expect(screen.getByText('Safe to spend today: USD 100')).toBeInTheDocument();
+  fireEvent.change(screen.getByLabelText('Amount (USD)'), { target: { value: '600' } });
+  fireEvent.change(screen.getByLabelText('Category'), { target: { value: 'Food' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Add an expense' }));
+  expect(screen.getByText('Safe to spend today: USD 50')).toBeInTheDocument();
+  expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '50');
+  fireEvent.click(screen.getByRole('button', { name: 'Delete expense' }));
+  expect(screen.getByText('Safe to spend today: USD 100')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+  expect(screen.getByText('Safe to spend today: USD 50')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Previous month' }));
+  expect(screen.queryByText(/Safe to spend today/)).not.toBeInTheDocument();
+  expect(screen.getByText('Stipend in 12 days (Oct 1, 2026)')).toBeInTheDocument();
+  unmount();
+  render(<App />);
+  expect(screen.getByLabelText('Budget amount')).toHaveTextContent('USD 1,200');
+  expect(screen.getByText('Stipend in 12 days (Oct 1, 2026)')).toBeInTheDocument();
+});
+it('can save an expense when randomUUID is unavailable', () => {
+  vi.stubGlobal('crypto', {});
+  vi.spyOn(Math, 'random').mockReturnValue(0.5);
+  try {
+    render(<App />);
+    fireEvent.change(screen.getByLabelText('Amount (USD)'), { target: { value: '15' } });
+    fireEvent.change(screen.getByLabelText('Category'), { target: { value: 'Food' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Add an expense' }));
+    expect(screen.getByLabelText('Total spent')).toHaveTextContent('USD 15');
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).expenses[0].id).toMatch(/^[a-z0-9]+$/);
+  } finally { vi.unstubAllGlobals(); }
 });

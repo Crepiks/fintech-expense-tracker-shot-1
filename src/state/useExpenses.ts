@@ -39,6 +39,7 @@ export function useExpenses() {
     remove: (id: string) => dispatch({ type: 'remove', id }),
     restore: (expense: Expense) => dispatch({ type: 'restore', expense }),
     setBudget: (minor: number | null) => dispatch({ type: 'setBudget', minor }),
+    setStipendDay: (day: number | null) => dispatch({ type: 'setStipendDay', day }),
     storageNotice,
   };
 }

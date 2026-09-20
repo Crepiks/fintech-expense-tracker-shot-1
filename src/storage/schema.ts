@@ -4,7 +4,7 @@ import { isValidDate } from '../domain/validation';
 import type { Expense, StoredData } from '../domain/types';
 
 export function emptyData(): StoredData {
-  return { version: 1, expenses: [], settings: { monthlyBudgetMinor: null } };
+  return { version: 1, expenses: [], settings: { monthlyBudgetMinor: null, stipendDay: null } };
 }
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -47,10 +47,20 @@ export function parseStoredData(raw: string | null): { data: StoredData; recover
     ids.add(expense.id);
     data.expenses.push(expense);
   }
-  if (isObject(value.settings) && (value.settings.monthlyBudgetMinor === null || validMinor(value.settings.monthlyBudgetMinor))) {
-    data.settings.monthlyBudgetMinor = value.settings.monthlyBudgetMinor;
-  } else {
-    recovered = true;
+  // Missing fields are version-1 legacy data, not corruption.
+  if (value.settings !== undefined) {
+    if (!isObject(value.settings)) recovered = true;
+    else {
+      const { monthlyBudgetMinor, stipendDay } = value.settings;
+      if (monthlyBudgetMinor !== undefined && monthlyBudgetMinor !== null) {
+        if (validMinor(monthlyBudgetMinor)) data.settings.monthlyBudgetMinor = monthlyBudgetMinor;
+        else recovered = true;
+      }
+      if (stipendDay !== undefined && stipendDay !== null) {
+        if (typeof stipendDay === 'number' && Number.isInteger(stipendDay) && stipendDay >= 1 && stipendDay <= 31) data.settings.stipendDay = stipendDay;
+        else recovered = true;
+      }
+    }
   }
   return { data, recovered };
 }

@@ -2,15 +2,12 @@ import { expect, it, vi } from 'vitest';
 import { runSelfTest } from '../../src/domain/selfTest';
 
 it('checks the real add/delete scenario with explicit expected and actual results', () => {
-  expect(runSelfTest()).toEqual([
-    { label: 'After adding: total', expected: 300000, actual: 300000, pass: true },
-    { label: 'After adding: Food', expected: 240000, actual: 240000, pass: true },
-    { label: 'After adding: Transportation', expected: 60000, actual: 60000, pass: true },
-    { label: 'After adding: categories equal total', expected: true, actual: true, pass: true },
-    { label: 'After deleting: total', expected: 210000, actual: 210000, pass: true },
-    { label: 'After deleting: Food', expected: 150000, actual: 150000, pass: true },
-    { label: 'After deleting: Transportation', expected: 60000, actual: 60000, pass: true },
-    { label: 'After deleting: categories equal total', expected: true, actual: true, pass: true },
+  const checks = runSelfTest();
+  expect(checks).toHaveLength(10);
+  expect(checks.every(check => check.pass)).toBe(true);
+  expect(checks.map(({ expected, actual }) => [expected, actual])).toEqual([
+    ['3', '3'], ['3,000', '3,000'], ['2,400', '2,400'], ['600', '600'], ['true', 'true'],
+    ['2', '2'], ['2,100', '2,100'], ['1,500', '1,500'], ['600', '600'], ['true', 'true'],
   ]);
 });
 it('runs repeatedly without reading or changing user storage', () => {
